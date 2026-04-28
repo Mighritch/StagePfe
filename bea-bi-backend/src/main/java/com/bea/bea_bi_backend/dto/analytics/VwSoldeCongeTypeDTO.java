@@ -1,0 +1,18 @@
+package com.bea.bea_bi_backend.dto.analytics;
+
+import lombok.*;
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class VwSoldeCongeTypeDTO {
+    private String typCng;
+    private BigDecimal soldeMoyen;
+    private BigDecimal initialMoyen;
+    private BigDecimal prisMoyen;
+    private BigDecimal cumulMoyen;
+    private String libServ;
+    private Integer annee;
+}

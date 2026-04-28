@@ -20,7 +20,6 @@ public class VwEffectifEvolution {
     @Column(name = "NB_EMPLOYES")
     private Long nbEmployes;
 
-    // Ajouts pour le filtrage (image_85f8a0.png)
     @Column(name = "LIB_SERV")
     private String libServ;
 
