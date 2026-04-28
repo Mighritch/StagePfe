@@ -29,11 +29,11 @@ public class CreditService {
                         p.getTypPret(),
                         p.getPrtMntGlb(),
                         p.getPrtMntRem(),
-                        p.getPrtMntGlb().subtract(
-                                p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
+                        p.getPrtMntGlb().subtract(p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
                         p.getRemMen(),
                         p.getPrtDatAcc(),
-                        p.getPrtDatFin()))
+                        p.getPrtDatFin()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -48,11 +48,11 @@ public class CreditService {
                         p.getTypPret(),
                         p.getPrtMntGlb(),
                         p.getPrtMntRem(),
-                        p.getPrtMntGlb().subtract(
-                                p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
+                        p.getPrtMntGlb().subtract(p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
                         p.getRemMen(),
                         p.getPrtDatAcc(),
-                        p.getPrtDatFin()))
+                        p.getPrtDatFin()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -139,11 +139,11 @@ public class CreditService {
                         p.getTypPret(),
                         p.getPrtMntGlb(),
                         p.getPrtMntRem(),
-                        p.getPrtMntGlb().subtract(
-                                p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
+                        p.getPrtMntGlb().subtract(p.getPrtMntRem() != null ? p.getPrtMntRem() : BigDecimal.ZERO),
                         p.getRemMen(),
                         p.getPrtDatAcc(),
-                        p.getPrtDatFin()))
+                        p.getPrtDatFin()
+                ))
                 .collect(Collectors.toList());
     }
 

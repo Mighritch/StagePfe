@@ -1,0 +1,34 @@
+package com.bea.bea_bi_backend.entities.analytics;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "VW_EFFECTIF_PAR_SEXE")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@org.hibernate.annotations.Immutable
+public class VwEffectifParSexe {
+
+    @Id
+    @Column(name = "SEXE")
+    private String sexe;
+
+    @Column(name = "NB_EMPLOYES")
+    private Long nbEmployes;
+
+    @Column(name = "POURCENTAGE")
+    private Double pourcentage;
+
+    // Ajout des colonnes de filtrage pour corriger le Repository
+    @Column(name = "LIB_SERV")
+    private String libServ;
+
+    @Column(name = "LIB_GRAD")
+    private String libGrad;
+
+    @Column(name = "ANNEE")
+    private Integer annee;
+}

@@ -34,13 +34,18 @@
 			<version>23.3.0.23.09</version>
 		</dependency>
 
+		<!-- ✅ AJOUT : UCP (Oracle Universal Connection Pool) pour HikariCP + Oracle -->
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ucp</artifactId>
+			<version>23.3.0.23.09</version>
+		</dependency>
+
 		<!-- ===================== SÉCURITÉ / KEYCLOAK ===================== -->
-		<!-- Spring Security : base de la sécurité -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		<!-- OAuth2 Resource Server : validation des tokens JWT Keycloak -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -71,6 +76,13 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.5.0</version>
+		</dependency>
+
+		<!-- ===================== ACTUATOR ===================== -->
+		<!-- ✅ AJOUT : health check endpoint /actuator/health -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
 		<!-- ===================== REPORTING ===================== -->
