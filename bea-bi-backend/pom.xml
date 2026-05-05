@@ -34,7 +34,7 @@
 			<version>23.3.0.23.09</version>
 		</dependency>
 
-		<!-- ✅ AJOUT : UCP (Oracle Universal Connection Pool) pour HikariCP + Oracle -->
+		<!-- ✅ UCP (Oracle Universal Connection Pool) pour HikariCP + Oracle -->
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ucp</artifactId>
@@ -79,7 +79,6 @@
 		</dependency>
 
 		<!-- ===================== ACTUATOR ===================== -->
-		<!-- ✅ AJOUT : health check endpoint /actuator/health -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -90,6 +89,13 @@
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
 			<version>6.21.3</version>
+		</dependency>
+
+		<!-- ===================== EXPORT EXCEL (Apache POI) ===================== -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
 		</dependency>
 
 		<!-- ===================== TESTS ===================== -->
