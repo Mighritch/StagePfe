@@ -1,0 +1,121 @@
+.prets-container {
+  padding: 20px;
+
+  h1 { 
+    margin-bottom: 20px; 
+    color: #333; 
+  }
+
+  .filters-bar {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      label { 
+        font-weight: 500; 
+        color: #555; 
+        min-width: 80px;
+      }
+      input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        width: 180px;
+      }
+    }
+  }
+
+  .loading { 
+    text-align: center; 
+    padding: 60px; 
+    color: #666; 
+    font-size: 1.1rem;
+  }
+
+  .data-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+
+    h2 { 
+      margin: 0 0 18px 0; 
+      font-size: 1.25rem; 
+      color: #333;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+  }
+
+  .chart-container {
+    height: 380px;
+    margin-bottom: 25px;
+    position: relative;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td { 
+      padding: 12px 10px; 
+      text-align: left; 
+      border-bottom: 1px solid #eee; 
+    }
+    th { 
+      background: #f8f9fa; 
+      font-weight: 600; 
+      color: #555; 
+    }
+    tr:hover td { 
+      background: #f5f5f5; 
+    }
+  }
+}
+
+/* Skeleton Loader */
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.skeleton-title {
+  width: 50%;
+  height: 28px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  animation: loading 1.5s infinite;
+}
+
+.skeleton-chart {
+  background: #f8f9fa;
+  border-radius: 8px;
+  animation: loading 1.5s infinite;
+}
+
+.skeleton-table {
+  height: 180px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

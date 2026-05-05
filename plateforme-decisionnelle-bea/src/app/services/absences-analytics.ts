@@ -1,6 +1,8 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseApiService } from './base-api.service';
+
+// ── Interfaces ────────────────────────────────────────────────────────────────
 
 export interface VwAbsencesParMotif {
   libMot: string;
@@ -57,13 +59,16 @@ export interface VwDureeMoyenneConge {
   annee: number;
 }
 
+// ── Service ───────────────────────────────────────────────────────────────────
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AbsencesAnalyticsService {
   private readonly baseEndpoint = 'analytics/absences';
 
-  constructor(@Inject(BaseApiService) private baseApi: BaseApiService) {}
+  // @Inject supprimé — inutile pour une dépendance de type class
+  constructor(private baseApi: BaseApiService) {}
 
   getAbsencesParMotif(
     service?: string,
@@ -72,8 +77,8 @@ export class AbsencesAnalyticsService {
   ): Observable<VwAbsencesParMotif[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
-    if (motif) params.motif = motif;
+    if (annee)   params.annee   = annee;
+    if (motif)   params.motif   = motif;
     return this.baseApi.get<VwAbsencesParMotif[]>(`${this.baseEndpoint}/par-motif`, params);
   }
 
@@ -83,7 +88,7 @@ export class AbsencesAnalyticsService {
   ): Observable<VwAbsenteismeService[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwAbsenteismeService[]>(`${this.baseEndpoint}/absenteisme-service`, params);
   }
 
@@ -93,7 +98,7 @@ export class AbsencesAnalyticsService {
   ): Observable<VwSoldeCongeType[]> {
     const params: any = {};
     if (typCng) params.typCng = typCng;
-    if (annee) params.annee = annee;
+    if (annee)  params.annee  = annee;
     return this.baseApi.get<VwSoldeCongeType[]>(`${this.baseEndpoint}/solde-conge-type`, params);
   }
 
@@ -103,8 +108,8 @@ export class AbsencesAnalyticsService {
     service?: string
   ): Observable<VwAbsencesParAnnee[]> {
     const params: any = {};
-    if (annee) params.annee = annee;
-    if (typCng) params.typCng = typCng;
+    if (annee)   params.annee   = annee;
+    if (typCng)  params.typCng  = typCng;
     if (service) params.service = service;
     return this.baseApi.get<VwAbsencesParAnnee[]>(`${this.baseEndpoint}/par-annee`, params);
   }
@@ -115,7 +120,7 @@ export class AbsencesAnalyticsService {
   ): Observable<VwTopAbsencesEmploye[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwTopAbsencesEmploye[]>(`${this.baseEndpoint}/top-absences-employe`, params);
   }
 
@@ -126,8 +131,8 @@ export class AbsencesAnalyticsService {
   ): Observable<VwDureeMoyenneConge[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
-    if (motif) params.motif = motif;
+    if (annee)   params.annee   = annee;
+    if (motif)   params.motif   = motif;
     return this.baseApi.get<VwDureeMoyenneConge[]>(`${this.baseEndpoint}/duree-moyenne-conge`, params);
   }
 }

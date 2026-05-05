@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class VwAbsencesParAnnee {
 
     @Id
-    @Column(name = "ANNEE_CNG")
+    @Column(name = "ANNEE") // Corrigé : était ANNEE_CNG auparavant
     private Integer anneeCng;
 
     @Column(name = "TYP_CNG")

@@ -1,6 +1,8 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseApiService } from './base-api.service';
+
+// ── Interfaces ────────────────────────────────────────────────────────────────
 
 export interface VwEncoursParTypePret {
   libPret: string;
@@ -70,13 +72,16 @@ export interface VwTopEmprunteurs {
   annee: number;
 }
 
+// ── Service ───────────────────────────────────────────────────────────────────
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CreditAnalyticsService {
   private readonly baseEndpoint = 'analytics/credit';
 
-  constructor(@Inject(BaseApiService) private baseApi: BaseApiService) {}
+  // @Inject supprimé — inutile pour une dépendance de type class
+  constructor(private baseApi: BaseApiService) {}
 
   getEncoursParTypePret(
     typPret?: string,
@@ -86,7 +91,7 @@ export class CreditAnalyticsService {
     const params: any = {};
     if (typPret) params.typPret = typPret;
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwEncoursParTypePret[]>(`${this.baseEndpoint}/encours-par-type-pret`, params);
   }
 
@@ -96,7 +101,7 @@ export class CreditAnalyticsService {
   ): Observable<VwTauxInteretPret[]> {
     const params: any = {};
     if (typPret) params.typPret = typPret;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwTauxInteretPret[]>(`${this.baseEndpoint}/taux-interet-pret`, params);
   }
 
@@ -108,7 +113,7 @@ export class CreditAnalyticsService {
     const params: any = {};
     if (service) params.service = service;
     if (typPret) params.typPret = typPret;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwPretsParService[]>(`${this.baseEndpoint}/prets-par-service`, params);
   }
 
@@ -118,7 +123,7 @@ export class CreditAnalyticsService {
   ): Observable<VwCapitalRestantPret[]> {
     const params: any = {};
     if (typPret) params.typPret = typPret;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwCapitalRestantPret[]>(`${this.baseEndpoint}/capital-restant-pret`, params);
   }
 
@@ -129,8 +134,8 @@ export class CreditAnalyticsService {
   ): Observable<VwPretsParDuree[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
-    if (duree) params.duree = duree;
+    if (annee)   params.annee   = annee;
+    if (duree)   params.duree   = duree;
     return this.baseApi.get<VwPretsParDuree[]>(`${this.baseEndpoint}/prets-par-duree`, params);
   }
 
@@ -141,8 +146,8 @@ export class CreditAnalyticsService {
   ): Observable<VwPretsParObjet[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
-    if (objet) params.objet = objet;
+    if (annee)   params.annee   = annee;
+    if (objet)   params.objet   = objet;
     return this.baseApi.get<VwPretsParObjet[]>(`${this.baseEndpoint}/prets-par-objet`, params);
   }
 
@@ -152,7 +157,7 @@ export class CreditAnalyticsService {
   ): Observable<VwTopEmprunteurs[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwTopEmprunteurs[]>(`${this.baseEndpoint}/top-emprunteurs`, params);
   }
 }

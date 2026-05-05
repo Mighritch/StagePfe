@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Silent SSO</title>
+  </head>
+  <body>
+    <script>
+      // Ce fichier est chargé dans une iframe cachée par Keycloak.
+      // Il renvoie le résultat de la vérification SSO à la fenêtre parente
+      // sans recharger l'application principale.
+      parent.postMessage(location.href, location.origin);
+    </script>
+  </body>
+</html>

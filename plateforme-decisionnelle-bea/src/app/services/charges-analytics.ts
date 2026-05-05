@@ -1,6 +1,8 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseApiService } from './base-api.service';
+
+// ── Interfaces ────────────────────────────────────────────────────────────────
 
 export interface VwMasseSalarialeMois {
   mois: Date;
@@ -54,13 +56,16 @@ export interface VwTauxChargeService {
   annee: number;
 }
 
+// ── Service ───────────────────────────────────────────────────────────────────
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChargesAnalyticsService {
   private readonly baseEndpoint = 'analytics/charges';
 
-  constructor(@Inject(BaseApiService) private baseApi: BaseApiService) {}
+  // @Inject supprimé — inutile pour une dépendance de type class
+  constructor(private baseApi: BaseApiService) {}
 
   getMasseSalarialeMois(
     service?: string,
@@ -69,8 +74,8 @@ export class ChargesAnalyticsService {
   ): Observable<VwMasseSalarialeMois[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
-    if (mois) params.mois = mois;
+    if (annee)   params.annee   = annee;
+    if (mois)    params.mois    = mois;
     return this.baseApi.get<VwMasseSalarialeMois[]>(`${this.baseEndpoint}/masse-salariale-mois`, params);
   }
 
@@ -80,7 +85,7 @@ export class ChargesAnalyticsService {
   ): Observable<VwChargesParTypeBulletin[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwChargesParTypeBulletin[]>(`${this.baseEndpoint}/par-type-bulletin`, params);
   }
 
@@ -90,7 +95,7 @@ export class ChargesAnalyticsService {
   ): Observable<VwMasseSalarialeService[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwMasseSalarialeService[]>(`${this.baseEndpoint}/masse-salariale-service`, params);
   }
 
@@ -100,9 +105,9 @@ export class ChargesAnalyticsService {
     annee?: number
   ): Observable<VwSalaireParGrade[]> {
     const params: any = {};
-    if (grade) params.grade = grade;
+    if (grade)   params.grade   = grade;
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwSalaireParGrade[]>(`${this.baseEndpoint}/salaire-par-grade`, params);
   }
 
@@ -120,7 +125,7 @@ export class ChargesAnalyticsService {
   ): Observable<VwTauxChargeService[]> {
     const params: any = {};
     if (service) params.service = service;
-    if (annee) params.annee = annee;
+    if (annee)   params.annee   = annee;
     return this.baseApi.get<VwTauxChargeService[]>(`${this.baseEndpoint}/taux-charge-service`, params);
   }
 }

@@ -1,1 +1,135 @@
-<p>prets works!</p>
+<div class="prets-container">
+  <h1>Analyse des Prêts</h1>
+  
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Année :</label>
+      <input type="number" [(ngModel)]="selectedAnnee" (input)="onFiltreChange()">
+    </div>
+    <div class="filter-group">
+      <label>Service :</label>
+      <input type="text" [(ngModel)]="selectedService" placeholder="Tous les services" (input)="onFiltreChange()">
+    </div>
+    <div class="filter-group">
+      <label>Type de prêt :</label>
+      <input type="text" [(ngModel)]="selectedTypePret" placeholder="Tous les types" (input)="onFiltreChange()">
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-container">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="data-card">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-chart" style="height: 380px;"></div>
+          <div class="skeleton-table"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    
+    <div class="data-card">
+      <h2>Encours par type de prêt</h2>
+      <div class="chart-container">
+        <canvas #encoursChart></canvas>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Type prêt</th>
+            <th>Nb prêts</th>
+            <th>Encours total</th>
+            <th>Montant moyen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of encoursParType(); track item.libPret) {
+            <tr>
+              <td>{{ item.libPret }}</td>
+              <td>{{ item.nbPrets }}</td>
+              <td>{{ formatMontant(item.encoursTotal) }}</td>
+              <td>{{ formatMontant(item.montantMoyen) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="data-card">
+      <h2>Prêts par service</h2>
+      <div class="chart-container">
+        <canvas #serviceChart></canvas>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Nb prêts</th>
+            <th>Crédit total</th>
+            <th>Montant moyen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of pretsParService(); track item.libServ) {
+            <tr>
+              <td>{{ item.libServ }}</td>
+              <td>{{ item.nbPrets }}</td>
+              <td>{{ formatMontant(item.totalCredit) }}</td>
+              <td>{{ formatMontant(item.montantMoyen) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="data-card">
+      <h2>Prêts par objet</h2>
+      <div class="chart-container">
+        <canvas #objetChart></canvas>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Objet</th>
+            <th>Nombre de prêts</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of pretsParObjet(); track item.objetPret) {
+            <tr>
+              <td>{{ item.objetPret }}</td>
+              <td>{{ item.nbPrets }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="data-card">
+      <h2>Top Emprunteurs</h2>
+      <div class="chart-container">
+        <canvas #topEmprunteursChart></canvas>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Employé</th>
+            <th>Nb prêts</th>
+            <th>Total emprunté</th>
+            <th>Taux moyen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (emp of topEmprunteurs(); track emp.matPers) {
+            <tr>
+              <td>{{ emp.prenPers }} {{ emp.nomPers }}</td>
+              <td>{{ emp.nbPrets }}</td>
+              <td>{{ formatMontant(emp.totalEmprunte) }}</td>
+              <td>{{ emp.tauxMoyen }}%</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

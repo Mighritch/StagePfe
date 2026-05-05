@@ -26,7 +26,6 @@ public class VwPretsParService {
     @Column(name = "MONTANT_MOYEN", precision = 12, scale = 3)
     private BigDecimal montantMoyen;
 
-    // Colonnes ajoutées pour permettre le filtrage dans le Repository
     @Column(name = "TYP_PRET")
     private String typPret;
 

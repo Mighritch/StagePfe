@@ -97,6 +97,41 @@
                 font-size: 32px;
                 color: #1a2a6c;
             }
+
+            // ✅ Styles du bouton de déconnexion intégrés
+            .logout-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 8px 16px;
+                margin-left: 16px;
+                border-radius: 8px;
+                color: #666;
+                transition: all 0.3s ease;
+                
+                .material-icons {
+                    font-size: 20px;
+                    margin: 0;
+                    color: inherit; // Suit la couleur du parent par défaut
+                }
+                
+                span:last-child {
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+                
+                &:hover {
+                    background-color: rgba(0,0,0,0.05);
+                    color: #b21f1f;
+                    
+                    .material-icons {
+                        color: #b21f1f;
+                    }
+                }
+            }
         }
     }
     
@@ -131,6 +166,11 @@
         
         .header-title h1 {
             font-size: 1.1rem;
+        }
+
+        // Optionnel : masquer le texte du bouton sur mobile pour gagner de la place
+        .user-info .logout-btn span:last-child {
+            display: none;
         }
     }
     
