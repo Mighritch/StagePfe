@@ -1,4 +1,13 @@
 <div class="dashboard">
+  <div class="export-buttons" style="margin-bottom: 20px; text-align: right;">
+    <button (click)="exportDashboardPDF()" class="btn-export pdf" [disabled]="loading()">
+      <span class="material-icons">picture_as_pdf</span> PDF
+    </button>
+    <button (click)="exportDashboardExcel()" class="btn-export excel" [disabled]="loading()">
+      <span class="material-icons">table_chart</span> Excel
+    </button>
+  </div>
+
   @if (loading()) {
     <div class="skeleton-container">
       <div class="stats-grid">
@@ -29,161 +38,163 @@
       </div>
     </div>
   } @else {
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon blue">
-          <span class="material-icons">people</span>
+    <div id="dashboard-content">
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <span class="material-icons">people</span>
+          </div>
+          <div class="stat-info">
+            <h3>Effectif Total</h3>
+            <p class="stat-value">{{ formatNombre(totalEmployes()) }}</p>
+            <span class="stat-label">employés</span>
+          </div>
         </div>
-        <div class="stat-info">
-          <h3>Effectif Total</h3>
-          <p class="stat-value">{{ formatNombre(totalEmployes()) }}</p>
-          <span class="stat-label">employés</span>
+
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <span class="material-icons">event_busy</span>
+          </div>
+          <div class="stat-info">
+            <h3>Demandes d'absence</h3>
+            <p class="stat-value">{{ formatNombre(totalAbsences()) }}</p>
+            <span class="stat-label">demandes en {{ currentYear }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <span class="material-icons">account_balance</span>
+          </div>
+          <div class="stat-info">
+            <h3>Prêts accordés</h3>
+            <p class="stat-value">{{ formatNombre(totalPrets()) }}</p>
+            <span class="stat-label">prêts en {{ currentYear }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <span class="material-icons">attach_money</span>
+          </div>
+          <div class="stat-info">
+            <h3>Masse Salariale</h3>
+            <p class="stat-value">{{ formatMontant(masseSalariale()) }}</p>
+            <span class="stat-label" [class]="getVariationClass(tauxAbsenteisme())">
+              @if (tauxAbsenteisme() > 0) { ▲ }
+              @if (tauxAbsenteisme() < 0) { ▼ }
+              {{ tauxAbsenteisme() }}% vs année précédente
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon red">
-          <span class="material-icons">event_busy</span>
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3>Absences par année</h3>
+          <div class="chart-container" style="height: 300px; margin-bottom: 1.5rem;">
+            @if (absencesChartData()) {
+              <canvas baseChart 
+                      [data]="absencesChartData()!" 
+                      [options]="lineOptions" 
+                      [type]="'line'">
+              </canvas>
+            }
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Année</th>
+                  <th>Type</th>
+                  <th>Demandes</th>
+                  <th>Jours</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of absencesParAnnee(); track $index) {
+                  <tr>
+                    <td>{{ item.anneeCng }}</td>
+                    <td>{{ item.typCng }}</td>
+                    <td>{{ item.nbDemandes }}</td>
+                    <td>{{ item.totalJours }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4">Aucune donnée</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="stat-info">
-          <h3>Demandes d'absence</h3>
-          <p class="stat-value">{{ formatNombre(totalAbsences()) }}</p>
-          <span class="stat-label">demandes en {{ currentYear }}</span>
+
+        <div class="chart-card">
+          <h3>Top Emprunteurs {{ currentYear }}</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employé</th>
+                  <th>Nb prêts</th>
+                  <th>Total emprunté</th>
+                  <th>Taux moyen</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (emp of topEmprunteurs(); track emp.matPers) {
+                  <tr>
+                    <td>{{ emp.prenPers }} {{ emp.nomPers }}</td>
+                    <td>{{ emp.nbPrets }}</td>
+                    <td>{{ formatMontant(emp.totalEmprunte) }}</td>
+                    <td>{{ emp.tauxMoyen }}%</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4">Aucune donnée</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon green">
-          <span class="material-icons">account_balance</span>
-        </div>
-        <div class="stat-info">
-          <h3>Prêts accordés</h3>
-          <p class="stat-value">{{ formatNombre(totalPrets()) }}</p>
-          <span class="stat-label">prêts en {{ currentYear }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon orange">
-          <span class="material-icons">attach_money</span>
-        </div>
-        <div class="stat-info">
-          <h3>Masse Salariale</h3>
-          <p class="stat-value">{{ formatMontant(masseSalariale()) }}</p>
-          <span class="stat-label" [class]="getVariationClass(tauxAbsenteisme())">
-            @if (tauxAbsenteisme() > 0) { ▲ }
-            @if (tauxAbsenteisme() < 0) { ▼ }
-            {{ tauxAbsenteisme() }}% vs année précédente
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="charts-row">
-      <div class="chart-card">
-        <h3>Absences par année</h3>
-        <div class="chart-container" style="height: 300px; margin-bottom: 1.5rem;">
-          @if (absencesChartData()) {
+      <div class="chart-card full-width">
+        <h3>Évolution de la Masse Salariale</h3>
+        <div class="chart-container" style="height: 350px; margin-bottom: 1.5rem;">
+          @if (evolutionMasseChartData()) {
             <canvas baseChart 
-                    [data]="absencesChartData()!" 
+                    [data]="evolutionMasseChartData()!" 
                     [options]="lineOptions" 
                     [type]="'line'">
             </canvas>
           }
         </div>
-        
+
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
                 <th>Année</th>
-                <th>Type</th>
-                <th>Demandes</th>
-                <th>Jours</th>
+                <th>Masse Salariale</th>
+                <th>Année précédente</th>
+                <th>Variation</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of absencesParAnnee(); track $index) {
+              @for (item of evolutionMasse(); track item.annee) {
                 <tr>
-                  <td>{{ item.anneeCng }}</td>
-                  <td>{{ item.typCng }}</td>
-                  <td>{{ item.nbDemandes }}</td>
-                  <td>{{ item.totalJours }}</td>
+                  <td>{{ item.annee }}</td>
+                  <td>{{ formatMontant(item.masseSalariale) }}</td>
+                  <td>{{ formatMontant(item.massePrec) }}</td>
+                  <td [class]="getVariationClass(item.variationPct)">
+                    @if (item.variationPct > 0) { + }
+                    {{ item.variationPct }}%
+                  </td>
                 </tr>
-              } @empty {
-                <tr><td colspan="4">Aucune donnée</td></tr>
               }
             </tbody>
           </table>
         </div>
       </div>
-
-      <div class="chart-card">
-        <h3>Top Emprunteurs {{ currentYear }}</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Employé</th>
-                <th>Nb prêts</th>
-                <th>Total emprunté</th>
-                <th>Taux moyen</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (emp of topEmprunteurs(); track emp.matPers) {
-                <tr>
-                  <td>{{ emp.prenPers }} {{ emp.nomPers }}</td>
-                  <td>{{ emp.nbPrets }}</td>
-                  <td>{{ formatMontant(emp.totalEmprunte) }}</td>
-                  <td>{{ emp.tauxMoyen }}%</td>
-                </tr>
-              } @empty {
-                <tr><td colspan="4">Aucune donnée</td></tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="chart-card full-width">
-      <h3>Évolution de la Masse Salariale</h3>
-      <div class="chart-container" style="height: 350px; margin-bottom: 1.5rem;">
-        @if (evolutionMasseChartData()) {
-          <canvas baseChart 
-                  [data]="evolutionMasseChartData()!" 
-                  [options]="lineOptions" 
-                  [type]="'line'">
-          </canvas>
-        }
-      </div>
-
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Année</th>
-              <th>Masse Salariale</th>
-              <th>Année précédente</th>
-              <th>Variation</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of evolutionMasse(); track item.annee) {
-              <tr>
-                <td>{{ item.annee }}</td>
-                <td>{{ formatMontant(item.masseSalariale) }}</td>
-                <td>{{ formatMontant(item.massePrec) }}</td>
-                <td [class]="getVariationClass(item.variationPct)">
-                  @if (item.variationPct > 0) { + }
-                  {{ item.variationPct }}%
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  }
+    </div> }
 </div>

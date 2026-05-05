@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 
 import { EffectifAnalyticsService } from '../../services/effectif-analytics';
 import { ChartHelperService } from '../../services/chart-helper.service';
+import { ExportService } from '../../services/export.service';
 import {
   VwEffectifParService,
   VwEffectifParGrade,
@@ -39,6 +40,7 @@ export class Effectifs implements OnInit {
   // ── Services ─────────────────────────────────────────────────────────
   chartHelper     = inject(ChartHelperService);
   private effectifService = inject(EffectifAnalyticsService);
+  private exportService   = inject(ExportService);
 
   // ── Charts computed ──────────────────────────────────────────────────
   chartService   = computed(() => this.chartHelper.effectifsParServiceChart(this.effectifsParService()));
@@ -97,5 +99,21 @@ export class Effectifs implements OnInit {
 
   getTotalEmployes(): number {
     return this.effectifsParService().reduce((sum, item) => sum + (item.nbEmployes || 0), 0);
+  }
+
+  // ── Méthodes d'Exportation ───────────────────────────────────────────
+
+  exportEffectifsExcel(): void {
+    this.exportService.exportMultipleSheets([
+      { name: 'Effectifs_Par_Service', data: this.effectifsParService() },
+      { name: 'Effectifs_Par_Grade', data: this.effectifsParGrade() },
+      { name: 'Effectifs_Par_Sexe', data: this.effectifsParSexe() },
+      { name: 'Evolution', data: this.effectifEvolution() }
+    ], `Effectifs_${this.selectedAnnee()}`);
+  }
+
+  async exportEffectifsPDF(): Promise<void> {
+    // Assure-toi que l'ID 'effectifs-content' existe dans ton template HTML
+    await this.exportService.exportElementToPDF('effectifs-content', `Effectifs_${this.selectedAnnee()}`);
   }
 }

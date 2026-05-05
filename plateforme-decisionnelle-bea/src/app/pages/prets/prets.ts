@@ -11,6 +11,7 @@ import {
   VwPretsParObjet,
 } from '../../services/credit-analytics';
 import { ChartHelperService } from '../../services/chart-helper.service';
+import { ExportService } from '../../services/export.service'; // Import ajouté
 
 Chart.register(...registerables);
 
@@ -47,7 +48,8 @@ export class Prets implements OnInit, OnDestroy {
 
   constructor(
     private creditService: CreditAnalyticsService,
-    private chartHelper: ChartHelperService
+    private chartHelper: ChartHelperService,
+    private exportService: ExportService // Injecté ici
   ) {}
 
   ngOnInit(): void {
@@ -154,5 +156,21 @@ export class Prets implements OnInit, OnDestroy {
       currency: 'MAD',
       maximumFractionDigits: 0,
     }).format(value);
+  }
+
+  // ====================== EXPORTS ======================
+
+  exportPretsExcel(): void {
+    this.exportService.exportMultipleSheets([
+      { name: 'Encours_Par_Type', data: this.encoursParType() },
+      { name: 'Prets_Par_Service', data: this.pretsParService() },
+      { name: 'Prets_Par_Objet', data: this.pretsParObjet() },
+      { name: 'Top_Emprunteurs', data: this.topEmprunteurs() }
+    ], `Prets_${this.selectedAnnee()}`);
+  }
+
+  async exportPretsPDF(): Promise<void> {
+    // Assurez-vous que l'id 'prets-content' existe dans votre fichier HTML
+    await this.exportService.exportElementToPDF('prets-content', `Prets_${this.selectedAnnee()}`);
   }
 }

@@ -10,6 +10,7 @@ import { AbsencesAnalyticsService, VwAbsencesParAnnee } from '../../services/abs
 import { EffectifAnalyticsService, VwEffectifParService } from '../../services/effectif-analytics';
 import { CreditAnalyticsService, VwTopEmprunteurs } from '../../services/credit-analytics';
 import { ChargesAnalyticsService, VwEvolutionMasseSalariale } from '../../services/charges-analytics';
+import { ExportService } from '../../services/export.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,11 +35,9 @@ export class Dashboard implements OnInit {
   evolutionMasse      = signal<VwEvolutionMasseSalariale[]>([]);
 
   // ── Configuration Chart.js ───────────────────────────────────────────
-  // Correction : absencesParAnneeChart retourne un type 'line' dans votre service helper
   absencesChartData = signal<ChartData<'line'> | null>(null);
   evolutionMasseChartData = signal<ChartData<'line'> | null>(null);
   
-  // On déclare les options sans les initialiser immédiatement pour éviter l'erreur d'initialisation
   barOptions!: ChartOptions<'bar'>;
   lineOptions!: ChartOptions<'line'>;
 
@@ -52,9 +51,10 @@ export class Dashboard implements OnInit {
     private effectifService: EffectifAnalyticsService,
     private creditService: CreditAnalyticsService,
     private chargesService: ChargesAnalyticsService,
-    private chartHelper: ChartHelperService
+    private chartHelper: ChartHelperService,
+    private exportService: ExportService
   ) {
-    // Initialisation des options ici, une fois que chartHelper est disponible
+    // Initialisation des options via le helper
     this.barOptions = this.chartHelper.barOptions();
     this.lineOptions = this.chartHelper.lineOptions();
   }
@@ -106,6 +106,34 @@ export class Dashboard implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  // ── Export Excel ─────────────────────────────────────────────────────
+  exportDashboardExcel(): void {
+    const fileName = `Dashboard_BEA_${new Date().toISOString().slice(0, 10)}`;
+    
+    this.exportService.exportMultipleSheets([
+      { 
+        name: 'Statistiques', 
+        data: [{
+          totalEmployes: this.totalEmployes(),
+          totalAbsences: this.totalAbsences(),
+          totalPrets: this.totalPrets(),
+          masseSalariale: this.masseSalariale()
+        }]
+      },
+      { name: 'Absences', data: this.absencesParAnnee() },
+      { name: 'Effectifs', data: this.effectifsParService() },
+      { name: 'Top Emprunteurs', data: this.topEmprunteurs() },
+      { name: 'Evolution Masse', data: this.evolutionMasse() }
+    ], fileName);
+  }
+
+  // ── Export PDF ───────────────────────────────────────────────────────
+  async exportDashboardPDF(): Promise<void> {
+    const fileName = `Dashboard_BEA_${new Date().toISOString().slice(0, 10)}`;
+    // 'dashboard-content' doit correspondre à l'ID de l'élément HTML principal dans dashboard.html
+    await this.exportService.exportElementToPDF('dashboard-content', fileName);
   }
 
   // ── Utilitaires de formatage ──────────────────────────────────────────
