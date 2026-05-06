@@ -11,141 +11,141 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class CreditAnalyticsService {
+public class EffectifAnalyticsService {
 
-    private final VwEncoursParTypePretRepository    encoursParTypePretRepo;
-    private final VwTauxInteretPretRepository       tauxInteretPretRepo;
-    private final VwPretsParServiceRepository       pretsParServiceRepo;
-    private final VwCapitalRestantPretRepository    capitalRestantPretRepo;
-    private final VwPretsParDureeRepository         pretsParDureeRepo;
-    private final VwPretsParObjetRepository         pretsParObjetRepo;
-    private final VwTopEmprunteursRepository        topEmprunteursRepo;
-    private final ExportService                     exportService;
+    private final VwEffectifParServiceRepository      effectifParServiceRepo;
+    private final VwEffectifParGradeRepository        effectifParGradeRepo;
+    private final VwEffectifParAdmtechRepository      effectifParAdmtechRepo;
+    private final VwEffectifParSexeRepository         effectifParSexeRepo;
+    private final VwEffectifEvolutionRepository       effectifEvolutionRepo;
+    private final VwEffectifServiceGradeRepository    effectifServiceGradeRepo;
+    private final VwEffectifParAffectationRepository  effectifParAffectationRepo;
+    private final ExportService                       exportService;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  DONNÉES
     // ─────────────────────────────────────────────────────────────────────────
 
-    public List<VwEncoursParTypePret> getEncoursParTypePret(String typPret, String service, Integer annee) {
-        if (typPret != null || service != null || annee != null) {
-            return encoursParTypePretRepo.findByFiltres(typPret, service, annee);
+    public List<VwEffectifParService> getEffectifParService(String service, String grade, Integer annee) {
+        if (service != null || grade != null || annee != null) {
+            return effectifParServiceRepo.findByFiltres(service, grade, annee);
         }
-        return encoursParTypePretRepo.findAll();
+        return effectifParServiceRepo.findAll();
     }
 
-    public List<VwTauxInteretPret> getTauxInteretPret(String typPret, Integer annee) {
-        if (typPret != null || annee != null) {
-            return tauxInteretPretRepo.findByFiltres(typPret, annee);
+    public List<VwEffectifParGrade> getEffectifParGrade(String grade, String service, Integer annee) {
+        if (grade != null || service != null || annee != null) {
+            return effectifParGradeRepo.findByFiltres(grade, service, annee);
         }
-        return tauxInteretPretRepo.findAll();
+        return effectifParGradeRepo.findAll();
     }
 
-    public List<VwPretsParService> getPretsParService(String service, String typPret, Integer annee) {
-        if (service != null || typPret != null || annee != null) {
-            return pretsParServiceRepo.findByFiltres(service, typPret, annee);
-        }
-        return pretsParServiceRepo.findAll();
-    }
-
-    public List<VwCapitalRestantPret> getCapitalRestantPret(String typPret, Integer annee) {
-        if (typPret != null || annee != null) {
-            return capitalRestantPretRepo.findByFiltres(typPret, annee);
-        }
-        return capitalRestantPretRepo.findAll();
-    }
-
-    public List<VwPretsParDuree> getPretsParDuree(String service, Integer annee, Integer duree) {
-        if (service != null || annee != null || duree != null) {
-            return pretsParDureeRepo.findByFiltres(service, annee, duree);
-        }
-        return pretsParDureeRepo.findAll();
-    }
-
-    public List<VwPretsParObjet> getPretsParObjet(String service, Integer annee, String objet) {
-        if (service != null || annee != null || objet != null) {
-            return pretsParObjetRepo.findByFiltres(service, annee, objet);
-        }
-        return pretsParObjetRepo.findAll();
-    }
-
-    public List<VwTopEmprunteurs> getTopEmprunteurs(String service, Integer annee) {
+    public List<VwEffectifParAdmtech> getEffectifParAdmtech(String service, Integer annee) {
         if (service != null || annee != null) {
-            return topEmprunteursRepo.findByFiltres(service, annee);
+            return effectifParAdmtechRepo.findByFiltres(service, annee);
         }
-        return topEmprunteursRepo.findAll();
+        return effectifParAdmtechRepo.findAll();
+    }
+
+    public List<VwEffectifParSexe> getEffectifParSexe(String service, String grade, Integer annee) {
+        if (service != null || grade != null || annee != null) {
+            return effectifParSexeRepo.findByFiltres(service, grade, annee);
+        }
+        return effectifParSexeRepo.findAll();
+    }
+
+    public List<VwEffectifEvolution> getEffectifEvolution(String service, String grade, Integer annee) {
+        if (service != null || grade != null || annee != null) {
+            return effectifEvolutionRepo.findByFiltres(service, grade, annee);
+        }
+        return effectifEvolutionRepo.findAll();
+    }
+
+    public List<VwEffectifServiceGrade> getEffectifServiceGrade(String service, String grade, Integer annee) {
+        if (service != null || grade != null || annee != null) {
+            return effectifServiceGradeRepo.findByFiltres(service, grade, annee);
+        }
+        return effectifServiceGradeRepo.findAll();
+    }
+
+    public List<VwEffectifParAffectation> getEffectifParAffectation(String service, Integer annee) {
+        if (service != null || annee != null) {
+            return effectifParAffectationRepo.findByFiltres(service, annee);
+        }
+        return effectifParAffectationRepo.findAll();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     //  EXPORT EXCEL
     // ─────────────────────────────────────────────────────────────────────────
 
-    public byte[] exportEncoursParTypePretExcel(String typPret, String service, Integer annee) {
-        List<VwEncoursParTypePret> data = getEncoursParTypePret(typPret, service, annee);
+    public byte[] exportEffectifParServiceExcel(String service, String grade, Integer annee) {
+        List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
         return exportService.exportToExcel(
                 data,
-                "Encours par Type de Prêt",
-                new String[]{"typPret", "service", "annee", "encours", "nombrePrets"},
-                new String[]{"Type de prêt", "Service", "Année", "Encours (DA)", "Nb prêts"}
+                "Effectif par Service",
+                new String[]{"service", "grade", "annee", "effectif"},
+                new String[]{"Service", "Grade", "Année", "Effectif"}
         );
     }
 
-    public byte[] exportTauxInteretPretExcel(String typPret, Integer annee) {
-        List<VwTauxInteretPret> data = getTauxInteretPret(typPret, annee);
+    public byte[] exportEffectifParGradeExcel(String grade, String service, Integer annee) {
+        List<VwEffectifParGrade> data = getEffectifParGrade(grade, service, annee);
         return exportService.exportToExcel(
                 data,
-                "Taux d'Intérêt par Prêt",
-                new String[]{"typPret", "annee", "tauxInteret", "tauxMoyen", "nombrePrets"},
-                new String[]{"Type de prêt", "Année", "Taux d'intérêt (%)", "Taux moyen (%)", "Nb prêts"}
+                "Effectif par Grade",
+                new String[]{"grade", "service", "annee", "effectif", "pourcentage"},
+                new String[]{"Grade", "Service", "Année", "Effectif", "Pourcentage (%)"}
         );
     }
 
-    public byte[] exportPretsParServiceExcel(String service, String typPret, Integer annee) {
-        List<VwPretsParService> data = getPretsParService(service, typPret, annee);
+    public byte[] exportEffectifParAdmtechExcel(String service, Integer annee) {
+        List<VwEffectifParAdmtech> data = getEffectifParAdmtech(service, annee);
         return exportService.exportToExcel(
                 data,
-                "Prêts par Service",
-                new String[]{"service", "typPret", "annee", "montantTotal", "nombrePrets", "montantMoyen"},
-                new String[]{"Service", "Type de prêt", "Année", "Montant total (DA)", "Nb prêts", "Montant moyen (DA)"}
+                "Effectif Administratif / Technique",
+                new String[]{"service", "annee", "categorie", "effectif", "pourcentage"},
+                new String[]{"Service", "Année", "Catégorie", "Effectif", "Pourcentage (%)"}
         );
     }
 
-    public byte[] exportCapitalRestantPretExcel(String typPret, Integer annee) {
-        List<VwCapitalRestantPret> data = getCapitalRestantPret(typPret, annee);
+    public byte[] exportEffectifParSexeExcel(String service, String grade, Integer annee) {
+        List<VwEffectifParSexe> data = getEffectifParSexe(service, grade, annee);
         return exportService.exportToExcel(
                 data,
-                "Capital Restant par Prêt",
-                new String[]{"typPret", "annee", "capitalRestant", "capitalInitial", "tauxRembourse"},
-                new String[]{"Type de prêt", "Année", "Capital restant (DA)", "Capital initial (DA)", "Taux remboursé (%)"}
+                "Effectif par Sexe",
+                new String[]{"service", "grade", "annee", "sexe", "effectif", "pourcentage"},
+                new String[]{"Service", "Grade", "Année", "Sexe", "Effectif", "Pourcentage (%)"}
         );
     }
 
-    public byte[] exportPretsParDureeExcel(String service, Integer annee, Integer duree) {
-        List<VwPretsParDuree> data = getPretsParDuree(service, annee, duree);
+    public byte[] exportEffectifEvolutionExcel(String service, String grade, Integer annee) {
+        List<VwEffectifEvolution> data = getEffectifEvolution(service, grade, annee);
         return exportService.exportToExcel(
                 data,
-                "Prêts par Durée",
-                new String[]{"service", "annee", "duree", "montantTotal", "nombrePrets"},
-                new String[]{"Service", "Année", "Durée (mois)", "Montant total (DA)", "Nb prêts"}
+                "Évolution de l'Effectif",
+                new String[]{"service", "grade", "annee", "effectif", "evolution", "tauxEvolution"},
+                new String[]{"Service", "Grade", "Année", "Effectif", "Évolution", "Taux d'évolution (%)"}
         );
     }
 
-    public byte[] exportPretsParObjetExcel(String service, Integer annee, String objet) {
-        List<VwPretsParObjet> data = getPretsParObjet(service, annee, objet);
+    public byte[] exportEffectifServiceGradeExcel(String service, String grade, Integer annee) {
+        List<VwEffectifServiceGrade> data = getEffectifServiceGrade(service, grade, annee);
         return exportService.exportToExcel(
                 data,
-                "Prêts par Objet",
-                new String[]{"service", "annee", "objet", "montantTotal", "nombrePrets"},
-                new String[]{"Service", "Année", "Objet", "Montant total (DA)", "Nb prêts"}
+                "Effectif Service / Grade",
+                new String[]{"service", "grade", "annee", "effectif"},
+                new String[]{"Service", "Grade", "Année", "Effectif"}
         );
     }
 
-    public byte[] exportTopEmprunteursExcel(String service, Integer annee) {
-        List<VwTopEmprunteurs> data = getTopEmprunteurs(service, annee);
+    public byte[] exportEffectifParAffectationExcel(String service, Integer annee) {
+        List<VwEffectifParAffectation> data = getEffectifParAffectation(service, annee);
         return exportService.exportToExcel(
                 data,
-                "Top Emprunteurs",
-                new String[]{"nomEmploye", "service", "annee", "montantTotal", "nombrePrets", "encours"},
-                new String[]{"Employé", "Service", "Année", "Montant total (DA)", "Nb prêts", "Encours (DA)"}
+                "Effectif par Affectation",
+                new String[]{"service", "annee", "affectation", "effectif", "pourcentage"},
+                new String[]{"Service", "Année", "Affectation", "Effectif", "Pourcentage (%)"}
         );
     }
 
@@ -153,62 +153,51 @@ public class CreditAnalyticsService {
     //  EXPORT PDF
     // ─────────────────────────────────────────────────────────────────────────
 
-    public byte[] exportEncoursParTypePretPdf(String typPret, String service, Integer annee) {
-        List<VwEncoursParTypePret> data = getEncoursParTypePret(typPret, service, annee);
-        Map<String, Object> params = buildParams("Encours par Type de Prêt", service, annee);
-        if (typPret != null) params.put("typPret", typPret);
-        return exportService.exportToPdf(data, "encours_par_type_pret", params);
+    public byte[] exportEffectifParServicePdf(String service, String grade, Integer annee) {
+        List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
+        return exportService.exportToPdf(data, "effectif_par_service", buildParams("Effectif par Service", service, grade, annee));
     }
 
-    public byte[] exportTauxInteretPretPdf(String typPret, Integer annee) {
-        List<VwTauxInteretPret> data = getTauxInteretPret(typPret, annee);
-        Map<String, Object> params = buildParams("Taux d'Intérêt par Prêt", null, annee);
-        if (typPret != null) params.put("typPret", typPret);
-        return exportService.exportToPdf(data, "taux_interet_pret", params);
+    public byte[] exportEffectifParGradePdf(String grade, String service, Integer annee) {
+        List<VwEffectifParGrade> data = getEffectifParGrade(grade, service, annee);
+        return exportService.exportToPdf(data, "effectif_par_grade", buildParams("Effectif par Grade", service, grade, annee));
     }
 
-    public byte[] exportPretsParServicePdf(String service, String typPret, Integer annee) {
-        List<VwPretsParService> data = getPretsParService(service, typPret, annee);
-        Map<String, Object> params = buildParams("Prêts par Service", service, annee);
-        if (typPret != null) params.put("typPret", typPret);
-        return exportService.exportToPdf(data, "prets_par_service", params);
+    public byte[] exportEffectifParAdmtechPdf(String service, Integer annee) {
+        List<VwEffectifParAdmtech> data = getEffectifParAdmtech(service, annee);
+        return exportService.exportToPdf(data, "effectif_par_admtech", buildParams("Effectif Administratif / Technique", service, null, annee));
     }
 
-    public byte[] exportCapitalRestantPretPdf(String typPret, Integer annee) {
-        List<VwCapitalRestantPret> data = getCapitalRestantPret(typPret, annee);
-        Map<String, Object> params = buildParams("Capital Restant par Prêt", null, annee);
-        if (typPret != null) params.put("typPret", typPret);
-        return exportService.exportToPdf(data, "capital_restant_pret", params);
+    public byte[] exportEffectifParSexePdf(String service, String grade, Integer annee) {
+        List<VwEffectifParSexe> data = getEffectifParSexe(service, grade, annee);
+        return exportService.exportToPdf(data, "effectif_par_sexe", buildParams("Effectif par Sexe", service, grade, annee));
     }
 
-    public byte[] exportPretsParDureePdf(String service, Integer annee, Integer duree) {
-        List<VwPretsParDuree> data = getPretsParDuree(service, annee, duree);
-        Map<String, Object> params = buildParams("Prêts par Durée", service, annee);
-        if (duree != null) params.put("duree", duree);
-        return exportService.exportToPdf(data, "prets_par_duree", params);
+    public byte[] exportEffectifEvolutionPdf(String service, String grade, Integer annee) {
+        List<VwEffectifEvolution> data = getEffectifEvolution(service, grade, annee);
+        return exportService.exportToPdf(data, "effectif_evolution", buildParams("Évolution de l'Effectif", service, grade, annee));
     }
 
-    public byte[] exportPretsParObjetPdf(String service, Integer annee, String objet) {
-        List<VwPretsParObjet> data = getPretsParObjet(service, annee, objet);
-        Map<String, Object> params = buildParams("Prêts par Objet", service, annee);
-        if (objet != null) params.put("objet", objet);
-        return exportService.exportToPdf(data, "prets_par_objet", params);
+    public byte[] exportEffectifServiceGradePdf(String service, String grade, Integer annee) {
+        List<VwEffectifServiceGrade> data = getEffectifServiceGrade(service, grade, annee);
+        return exportService.exportToPdf(data, "effectif_service_grade", buildParams("Effectif Service / Grade", service, grade, annee));
     }
 
-    public byte[] exportTopEmprunteursPdf(String service, Integer annee) {
-        List<VwTopEmprunteurs> data = getTopEmprunteurs(service, annee);
-        return exportService.exportToPdf(data, "top_emprunteurs", buildParams("Top Emprunteurs", service, annee));
+    public byte[] exportEffectifParAffectationPdf(String service, Integer annee) {
+        List<VwEffectifParAffectation> data = getEffectifParAffectation(service, annee);
+        return exportService.exportToPdf(data, "effectif_par_affectation", buildParams("Effectif par Affectation", service, null, annee));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     //  UTILITAIRE PRIVÉ
     // ─────────────────────────────────────────────────────────────────────────
 
-    private Map<String, Object> buildParams(String title, String service, Integer annee) {
+    private Map<String, Object> buildParams(String title, String service, String grade, Integer annee) {
         Map<String, Object> params = new HashMap<>();
         params.put("REPORT_TITLE", title);
         if (service != null) params.put("service", service);
-        if (annee  != null) params.put("annee",   annee);
+        if (grade   != null) params.put("grade",   grade);
+        if (annee   != null) params.put("annee",   annee);
         return params;
     }
 }
