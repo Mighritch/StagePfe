@@ -5,7 +5,6 @@ import { forkJoin } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
 
-// Services et types
 import { ChartHelperService } from '../../services/chart-helper.service';
 import { ExportService } from '../../services/export.service';
 import {
@@ -26,10 +25,10 @@ import {
 export class Absences implements OnInit {
 
   // ── Données brutes (Signaux) ──────────────────────────────────────────
-  absencesParAnnee    = signal<VwAbsencesParAnnee[]>([]);
-  absencesParMotif    = signal<VwAbsencesParMotif[]>([]);
-  topAbsences         = signal<VwTopAbsencesEmploye[]>([]);
-  dureeMoyenneConge   = signal<VwDureeMoyenneConge[]>([]);
+  absencesParAnnee  = signal<VwAbsencesParAnnee[]>([]);
+  absencesParMotif  = signal<VwAbsencesParMotif[]>([]);
+  topAbsences       = signal<VwTopAbsencesEmploye[]>([]);
+  dureeMoyenneConge = signal<VwDureeMoyenneConge[]>([]);
 
   // ── Signaux pour les graphiques Chart.js ──────────────────────────────
   motifChartData        = signal<ChartData<'bar'> | null>(null);
@@ -55,7 +54,6 @@ export class Absences implements OnInit {
   motifWithDuration = computed(() => {
     const motifs = this.absencesParMotif();
     const durees = this.dureeMoyenneConge();
-    
     return motifs.map((motif, index) => ({
       ...motif,
       dureeMoyenne: durees[index]?.dureeMoyenne || 0
@@ -67,8 +65,7 @@ export class Absences implements OnInit {
     private chartHelper: ChartHelperService,
     private exportService: ExportService
   ) {
-    // Initialisation des options via le helper
-    this.barOptions = this.chartHelper.barOptions('Jours');
+    this.barOptions       = this.chartHelper.barOptions('Jours');
     this.horizontalOptions = this.chartHelper.barHorizontalOptions();
   }
 
@@ -76,9 +73,6 @@ export class Absences implements OnInit {
     this.loadAllData();
   }
 
-  /**
-   * Charge toutes les données analytiques en parallèle
-   */
   loadAllData(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -94,16 +88,13 @@ export class Absences implements OnInit {
       duree    : this.absencesService.getDureeMoyenneConge(service, annee, motif),
     }).subscribe({
       next: ({ parAnnee, parMotif, top, duree }) => {
-        // 1. Mise à jour des données brutes
         this.absencesParAnnee.set(parAnnee);
         this.absencesParMotif.set(parMotif);
         this.topAbsences.set(top);
         this.dureeMoyenneConge.set(duree);
 
-        // 2. Mise à jour des listes de filtres dynamiques (Unicité des motifs)
         this.availableMotifs.set([...new Set(parMotif.map(m => m.libMot))]);
 
-        // 3. Préparation des données pour les graphiques via le helper
         this.motifChartData.set(this.chartHelper.absencesParMotifChart(parMotif));
         this.topAbsencesChartData.set(this.chartHelper.topAbsencesChart(top));
         this.dureeMoyenneChartData.set(this.chartHelper.dureeMoyenneCongeChart(duree));
@@ -134,27 +125,20 @@ export class Absences implements OnInit {
 
   // ── EXPORTS ──────────────────────────────────────────────────────────
 
-  /**
-   * Exporte les données vers un fichier Excel avec plusieurs feuilles
-   */
   exportAbsencesExcel(): void {
     this.exportService.exportMultipleSheets([
-      { name: 'Absences_Par_Motif', data: this.absencesParMotif() },
-      { name: 'Top_Absences', data: this.topAbsences() },
-      { name: 'Historique_Annee', data: this.absencesParAnnee() },
-      { name: 'Duree_Moyenne', data: this.motifWithDuration() }
+      { name: 'Absences_Par_Motif',  data: this.absencesParMotif() },
+      { name: 'Top_Absences',        data: this.topAbsences() },
+      { name: 'Historique_Annee',    data: this.absencesParAnnee() },
+      { name: 'Duree_Moyenne',       data: this.motifWithDuration() }
     ], `Absences_${this.selectedAnnee()}`);
   }
 
-  /**
-   * Exporte le contenu HTML ciblé en format PDF
-   */
   async exportAbsencesPDF(): Promise<void> {
-    // Note: Assurez-vous que l'id 'absences-content' enveloppe vos graphiques/tableaux dans le template HTML
-    try {
-      await this.exportService.exportElementToPDF('absences-content', `Absences_${this.selectedAnnee()}`);
-    } catch (err) {
-      console.error('Erreur lors de l\'export PDF :', err);
-    }
+    await this.exportService.exportElementToPDF(
+      'absences-content',
+      `Absences_${this.selectedAnnee()}`,
+      `Analyse des Absences — ${this.selectedAnnee()}`
+    );
   }
 }

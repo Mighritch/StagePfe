@@ -37,7 +37,7 @@ export class Dashboard implements OnInit {
   // ── Configuration Chart.js ───────────────────────────────────────────
   absencesChartData = signal<ChartData<'line'> | null>(null);
   evolutionMasseChartData = signal<ChartData<'line'> | null>(null);
-  
+
   barOptions!: ChartOptions<'bar'>;
   lineOptions!: ChartOptions<'line'>;
 
@@ -54,8 +54,7 @@ export class Dashboard implements OnInit {
     private chartHelper: ChartHelperService,
     private exportService: ExportService
   ) {
-    // Initialisation des options via le helper
-    this.barOptions = this.chartHelper.barOptions();
+    this.barOptions  = this.chartHelper.barOptions();
     this.lineOptions = this.chartHelper.lineOptions();
   }
 
@@ -74,24 +73,18 @@ export class Dashboard implements OnInit {
       evolution  : this.chargesService.getEvolutionMasseSalariale(),
     }).subscribe({
       next: ({ absences, effectifs, emprunteurs, evolution }) => {
-        // 1. Mise à jour des graphiques via le helper
         this.absencesChartData.set(this.chartHelper.absencesParAnneeChart(absences));
         this.evolutionMasseChartData.set(this.chartHelper.evolutionMasseSalarialeChart(evolution));
 
-        // 2. Stockage des données brutes
         this.absencesParAnnee.set(absences);
         this.effectifsParService.set(effectifs);
         this.evolutionMasse.set(evolution);
-        
-        // On ne garde que le top 5 pour l'affichage tableau
         this.topEmprunteurs.set(emprunteurs.slice(0, 5));
 
-        // 3. Calcul des totaux et indicateurs
         this.totalAbsences.set(absences.reduce((sum, item) => sum + (item.nbDemandes || 0), 0));
         this.totalEmployes.set(effectifs.reduce((sum, item) => sum + (item.nbEmployes || 0), 0));
         this.totalPrets.set(emprunteurs.reduce((sum, item) => sum + (item.nbPrets || 0), 0));
 
-        // 4. Extraction des données de l'année en cours pour la masse salariale
         const currentData = evolution.find(item => item.annee === this.currentYear);
         if (currentData) {
           this.masseSalariale.set(currentData.masseSalariale);
@@ -111,19 +104,18 @@ export class Dashboard implements OnInit {
   // ── Export Excel ─────────────────────────────────────────────────────
   exportDashboardExcel(): void {
     const fileName = `Dashboard_BEA_${new Date().toISOString().slice(0, 10)}`;
-    
     this.exportService.exportMultipleSheets([
-      { 
-        name: 'Statistiques', 
+      {
+        name: 'Statistiques',
         data: [{
-          totalEmployes: this.totalEmployes(),
-          totalAbsences: this.totalAbsences(),
-          totalPrets: this.totalPrets(),
-          masseSalariale: this.masseSalariale()
+          totalEmployes  : this.totalEmployes(),
+          totalAbsences  : this.totalAbsences(),
+          totalPrets     : this.totalPrets(),
+          masseSalariale : this.masseSalariale()
         }]
       },
-      { name: 'Absences', data: this.absencesParAnnee() },
-      { name: 'Effectifs', data: this.effectifsParService() },
+      { name: 'Absences',       data: this.absencesParAnnee() },
+      { name: 'Effectifs',      data: this.effectifsParService() },
       { name: 'Top Emprunteurs', data: this.topEmprunteurs() },
       { name: 'Evolution Masse', data: this.evolutionMasse() }
     ], fileName);
@@ -132,8 +124,11 @@ export class Dashboard implements OnInit {
   // ── Export PDF ───────────────────────────────────────────────────────
   async exportDashboardPDF(): Promise<void> {
     const fileName = `Dashboard_BEA_${new Date().toISOString().slice(0, 10)}`;
-    // 'dashboard-content' doit correspondre à l'ID de l'élément HTML principal dans dashboard.html
-    await this.exportService.exportElementToPDF('dashboard-content', fileName);
+    await this.exportService.exportElementToPDF(
+      'dashboard-content',
+      fileName,
+      'Tableau de Bord — Vue Globale'
+    );
   }
 
   // ── Utilitaires de formatage ──────────────────────────────────────────

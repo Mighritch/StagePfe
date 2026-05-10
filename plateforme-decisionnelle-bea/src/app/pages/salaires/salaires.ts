@@ -25,9 +25,9 @@ Chart.register(...registerables);
 export class Salaires implements OnInit {
 
   // ── Services ────────────────────────────────────────────────────────
-  private chartHelper = inject(ChartHelperService);
+  private chartHelper    = inject(ChartHelperService);
   private chargesService = inject(ChargesAnalyticsService);
-  private exportService = inject(ExportService);
+  private exportService  = inject(ExportService);
 
   // ── Données (Signals) ───────────────────────────────────────────────
   masseSalarialeService = signal<VwMasseSalarialeService[]>([]);
@@ -77,10 +77,7 @@ export class Salaires implements OnInit {
         );
         this.tauxChargeService.set(taux);
 
-        // On attend que le DOM se mette à jour pour rendre les graphiques
-        setTimeout(() => {
-          this.createCharts();
-        }, 0);
+        setTimeout(() => this.createCharts(), 0);
       },
       error: (err) => {
         console.error('Erreur chargement salaires :', err);
@@ -92,10 +89,10 @@ export class Salaires implements OnInit {
   }
 
   // ── Gestion des Graphiques ──────────────────────────────────────────
+
   private createCharts(): void {
     this.destroyCharts();
 
-    // 1. Masse Salariale par Service
     if (this.masseChartRef) {
       this.charts.push(new Chart(this.masseChartRef.nativeElement, {
         type: 'bar',
@@ -104,7 +101,6 @@ export class Salaires implements OnInit {
       }));
     }
 
-    // 2. Salaire par Grade
     if (this.gradeChartRef) {
       this.charts.push(new Chart(this.gradeChartRef.nativeElement, {
         type: 'bar',
@@ -113,7 +109,6 @@ export class Salaires implements OnInit {
       }));
     }
 
-    // 3. Évolution de la Masse
     if (this.evolutionChartRef) {
       this.charts.push(new Chart(this.evolutionChartRef.nativeElement, {
         type: 'line',
@@ -131,6 +126,7 @@ export class Salaires implements OnInit {
   }
 
   // ── Actions utilisateur ─────────────────────────────────────────────
+
   onFiltreChange(): void {
     this.loadAllData();
   }
@@ -144,17 +140,21 @@ export class Salaires implements OnInit {
   }
 
   // ── Exportation ─────────────────────────────────────────────────────
+
   exportSalairesExcel(): void {
     this.exportService.exportMultipleSheets([
       { name: 'Masse_Par_Service', data: this.masseSalarialeService() },
       { name: 'Salaire_Par_Grade', data: this.salaireParGrade() },
-      { name: 'Evolution_Masse', data: this.evolutionMasse() },
-      { name: 'Taux_Charge', data: this.tauxChargeService() }
+      { name: 'Evolution_Masse',   data: this.evolutionMasse() },
+      { name: 'Taux_Charge',       data: this.tauxChargeService() }
     ], `Salaires_${this.selectedAnnee()}`);
   }
 
   async exportSalairesPDF(): Promise<void> {
-    // Assurez-vous que l'id 'salaires-content' existe dans votre fichier HTML
-    await this.exportService.exportElementToPDF('salaires-content', `Salaires_${this.selectedAnnee()}`);
+    await this.exportService.exportElementToPDF(
+      'salaires-content',
+      `Salaires_${this.selectedAnnee()}`,
+      `Analyse des Salaires — ${this.selectedAnnee()}`
+    );
   }
 }

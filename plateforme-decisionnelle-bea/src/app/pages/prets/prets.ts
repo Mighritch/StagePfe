@@ -11,7 +11,7 @@ import {
   VwPretsParObjet,
 } from '../../services/credit-analytics';
 import { ChartHelperService } from '../../services/chart-helper.service';
-import { ExportService } from '../../services/export.service'; // Import ajouté
+import { ExportService } from '../../services/export.service';
 
 Chart.register(...registerables);
 
@@ -49,7 +49,7 @@ export class Prets implements OnInit, OnDestroy {
   constructor(
     private creditService: CreditAnalyticsService,
     private chartHelper: ChartHelperService,
-    private exportService: ExportService // Injecté ici
+    private exportService: ExportService
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +81,6 @@ export class Prets implements OnInit, OnDestroy {
         this.pretsParObjet.set(parObjet);
         this.topEmprunteurs.set(emprunteurs);
 
-        // On attend la mise à jour du template (Angular signals -> DOM)
         setTimeout(() => this.initCharts(), 0);
       },
       error: (err) => {
@@ -100,48 +99,33 @@ export class Prets implements OnInit, OnDestroy {
   // ── Initialisation des graphiques ───────────────────────────────────
 
   private initCharts(): void {
-    // 1. Encours (Doughnut)
     if (this.encoursChartRef) {
-      this.charts.push(
-        new Chart(this.encoursChartRef.nativeElement, {
-          type: 'doughnut',
-          data: this.chartHelper.encoursParTypeChart(this.encoursParType()),
-          options: this.chartHelper.doughnutOptions('Encours')
-        })
-      );
+      this.charts.push(new Chart(this.encoursChartRef.nativeElement, {
+        type: 'doughnut',
+        data: this.chartHelper.encoursParTypeChart(this.encoursParType()),
+        options: this.chartHelper.doughnutOptions('Encours')
+      }));
     }
-
-    // 2. Prêts par Service (Barres verticales)
     if (this.serviceChartRef) {
-      this.charts.push(
-        new Chart(this.serviceChartRef.nativeElement, {
-          type: 'bar',
-          data: this.chartHelper.pretsParServiceChart(this.pretsParService()),
-          options: this.chartHelper.barOptions('Montant (MAD)')
-        })
-      );
+      this.charts.push(new Chart(this.serviceChartRef.nativeElement, {
+        type: 'bar',
+        data: this.chartHelper.pretsParServiceChart(this.pretsParService()),
+        options: this.chartHelper.barOptions('Montant (MAD)')
+      }));
     }
-
-    // 3. Prêts par Objet (Pie)
     if (this.objetChartRef) {
-      this.charts.push(
-        new Chart(this.objetChartRef.nativeElement, {
-          type: 'pie',
-          data: this.chartHelper.pretsParObjetChart(this.pretsParObjet()),
-          options: this.chartHelper.pieOptions()
-        })
-      );
+      this.charts.push(new Chart(this.objetChartRef.nativeElement, {
+        type: 'pie',
+        data: this.chartHelper.pretsParObjetChart(this.pretsParObjet()),
+        options: this.chartHelper.pieOptions()
+      }));
     }
-
-    // 4. Top Emprunteurs (Barres horizontales)
     if (this.topEmprunteursChartRef) {
-      this.charts.push(
-        new Chart(this.topEmprunteursChartRef.nativeElement, {
-          type: 'bar',
-          data: this.chartHelper.topEmprunteursChart(this.topEmprunteurs()),
-          options: this.chartHelper.barHorizontalOptions()
-        })
-      );
+      this.charts.push(new Chart(this.topEmprunteursChartRef.nativeElement, {
+        type: 'bar',
+        data: this.chartHelper.topEmprunteursChart(this.topEmprunteurs()),
+        options: this.chartHelper.barHorizontalOptions()
+      }));
     }
   }
 
@@ -158,19 +142,22 @@ export class Prets implements OnInit, OnDestroy {
     }).format(value);
   }
 
-  // ====================== EXPORTS ======================
+  // ── Exports ──────────────────────────────────────────────────────────
 
   exportPretsExcel(): void {
     this.exportService.exportMultipleSheets([
-      { name: 'Encours_Par_Type', data: this.encoursParType() },
+      { name: 'Encours_Par_Type',  data: this.encoursParType() },
       { name: 'Prets_Par_Service', data: this.pretsParService() },
-      { name: 'Prets_Par_Objet', data: this.pretsParObjet() },
-      { name: 'Top_Emprunteurs', data: this.topEmprunteurs() }
+      { name: 'Prets_Par_Objet',   data: this.pretsParObjet() },
+      { name: 'Top_Emprunteurs',   data: this.topEmprunteurs() }
     ], `Prets_${this.selectedAnnee()}`);
   }
 
   async exportPretsPDF(): Promise<void> {
-    // Assurez-vous que l'id 'prets-content' existe dans votre fichier HTML
-    await this.exportService.exportElementToPDF('prets-content', `Prets_${this.selectedAnnee()}`);
+    await this.exportService.exportElementToPDF(
+      'prets-content',
+      `Prets_${this.selectedAnnee()}`,
+      `Analyse des Prêts — ${this.selectedAnnee()}`
+    );
   }
 }

@@ -38,7 +38,7 @@ export class Effectifs implements OnInit {
   error   = signal<string | null>(null);
 
   // ── Services ─────────────────────────────────────────────────────────
-  chartHelper     = inject(ChartHelperService);
+  chartHelper            = inject(ChartHelperService);
   private effectifService = inject(EffectifAnalyticsService);
   private exportService   = inject(ExportService);
 
@@ -62,7 +62,6 @@ export class Effectifs implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Réinitialiser les données avant le chargement
     this.effectifsParService.set([]);
     this.effectifsParGrade.set([]);
     this.effectifsParSexe.set([]);
@@ -106,14 +105,17 @@ export class Effectifs implements OnInit {
   exportEffectifsExcel(): void {
     this.exportService.exportMultipleSheets([
       { name: 'Effectifs_Par_Service', data: this.effectifsParService() },
-      { name: 'Effectifs_Par_Grade', data: this.effectifsParGrade() },
-      { name: 'Effectifs_Par_Sexe', data: this.effectifsParSexe() },
-      { name: 'Evolution', data: this.effectifEvolution() }
+      { name: 'Effectifs_Par_Grade',   data: this.effectifsParGrade() },
+      { name: 'Effectifs_Par_Sexe',    data: this.effectifsParSexe() },
+      { name: 'Evolution',             data: this.effectifEvolution() }
     ], `Effectifs_${this.selectedAnnee()}`);
   }
 
   async exportEffectifsPDF(): Promise<void> {
-    // Assure-toi que l'ID 'effectifs-content' existe dans ton template HTML
-    await this.exportService.exportElementToPDF('effectifs-content', `Effectifs_${this.selectedAnnee()}`);
+    await this.exportService.exportElementToPDF(
+      'effectifs-content',
+      `Effectifs_${this.selectedAnnee()}`,
+      `Analyse des Effectifs — ${this.selectedAnnee()}`
+    );
   }
 }
