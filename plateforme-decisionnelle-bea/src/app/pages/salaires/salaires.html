@@ -1,39 +1,58 @@
 <div class="salaires-container">
   <h1>Analyse des Salaires</h1>
-  
+
+  <!-- ── Export ───────────────────────────────────────────────── -->
   <div class="export-buttons">
-    <button (click)="exportSalairesPDF()" class="btn-export pdf">PDF</button>
-    <button (click)="exportSalairesExcel()" class="btn-export excel">Excel</button>
+    <button (click)="exportSalairesPDF()" class="btn-export pdf">
+      <span class="material-icons">picture_as_pdf</span> PDF
+    </button>
+    <button (click)="exportSalairesExcel()" class="btn-export excel">
+      <span class="material-icons">table_chart</span> Excel
+    </button>
   </div>
 
   <div id="salaires-content">
+
+    <!-- ── Filtres ──────────────────────────────────────────────── -->
     <div class="filters-bar">
       <div class="filter-group">
-        <label>Année:</label>
+        <label>Année</label>
         <input type="number" [(ngModel)]="selectedAnnee" (change)="onFiltreChange()">
       </div>
       <div class="filter-group">
-        <label>Service:</label>
-        <input type="text" [(ngModel)]="selectedService" placeholder="Filtrer service..." (input)="onFiltreChange()">
+        <label>Service</label>
+        <input type="text" [(ngModel)]="selectedService" placeholder="Filtrer par service..." (input)="onFiltreChange()">
       </div>
     </div>
 
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  SKELETON                                                    -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     @if (loading()) {
       <div class="skeleton-container">
-        @for (i of [1, 2, 3]; track i) {
+        @for (i of [1,2,3]; track i) {
           <div class="data-card">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 300px; margin-bottom: 20px;"></div>
-            <div class="skeleton-table"></div>
+            <div class="skeleton-chart" style="height: 320px;"></div>
+            <div class="skeleton-table" style="margin-top: 20px;"></div>
           </div>
         }
       </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  ERREUR                                                       -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     } @else if (error()) {
       <div class="error-message">{{ error() }}</div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  CONTENU                                                      -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     } @else {
-      
+
+      <!-- Masse salariale par service -->
       <div class="data-card">
-        <h2>Masse salariale par service</h2>
+        <h2>Masse Salariale par Service</h2>
         <div class="chart-container">
           <canvas #masseChart></canvas>
         </div>
@@ -55,12 +74,14 @@
                 <td>{{ item.nbEmployes }}</td>
               </tr>
             }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Salaires par grade -->
       <div class="data-card">
-        <h2>Répartition des salaires par grade</h2>
+        <h2>Répartition des Salaires par Grade</h2>
         <div class="chart-container">
           <canvas #gradeChart></canvas>
         </div>
@@ -68,9 +89,9 @@
           <thead>
             <tr>
               <th>Grade</th>
-              <th>Moyen</th>
-              <th>Min</th>
-              <th>Max</th>
+              <th>Salaire moyen</th>
+              <th>Minimum</th>
+              <th>Maximum</th>
             </tr>
           </thead>
           <tbody>
@@ -82,12 +103,14 @@
                 <td>{{ formatMontant(item.salaireMax) }}</td>
               </tr>
             }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Évolution masse salariale -->
       <div class="data-card">
-        <h2>Évolution de la masse salariale</h2>
+        <h2>Évolution de la Masse Salariale</h2>
         <div class="chart-container">
           <canvas #evolutionChart></canvas>
         </div>
@@ -109,9 +132,11 @@
                 </td>
               </tr>
             }
+            @empty { <tr><td colspan="3">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
+
     }
   </div>
 </div>

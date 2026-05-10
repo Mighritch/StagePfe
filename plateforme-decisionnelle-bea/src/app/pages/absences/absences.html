@@ -1,34 +1,34 @@
 <div class="absences-container">
   <h1>Analyse des Absences</h1>
 
-  <div class="export-buttons" style="margin-bottom: 20px; display: flex; gap: 10px;">
-    <button (click)="exportAbsencesPDF()" class="btn-export pdf" style="display: flex; align-items: center; gap: 5px;">
+  <!-- ── Export ──────────────────────────────────────────────── -->
+  <div class="export-buttons">
+    <button (click)="exportAbsencesPDF()" class="btn-export pdf">
       <span class="material-icons">picture_as_pdf</span> PDF
     </button>
-    <button (click)="exportAbsencesExcel()" class="btn-export excel" style="display: flex; align-items: center; gap: 5px;">
+    <button (click)="exportAbsencesExcel()" class="btn-export excel">
       <span class="material-icons">table_chart</span> Excel
     </button>
   </div>
 
   <div id="absences-content">
-    
-    <div class="filters-bar" style="margin-bottom: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+
+    <!-- ── Filtres ───────────────────────────────────────────── -->
+    <div class="filters-bar">
       <div class="filter-group">
-        <label>Année:</label>
+        <label>Année</label>
         <select [(ngModel)]="selectedAnnee" (change)="onFiltreChange()">
           @for (year of availableYears(); track year) {
             <option [value]="year">{{ year }}</option>
           }
         </select>
       </div>
-      
       <div class="filter-group">
-        <label>Service:</label>
-        <input type="text" [(ngModel)]="selectedService" placeholder="Nom du service" (input)="onFiltreChange()">
+        <label>Service</label>
+        <input type="text" [(ngModel)]="selectedService" placeholder="Tous les services" (input)="onFiltreChange()">
       </div>
-      
       <div class="filter-group">
-        <label>Motif:</label>
+        <label>Motif</label>
         <select [(ngModel)]="selectedMotif" (change)="onFiltreChange()">
           <option value="">Tous</option>
           @for (motif of availableMotifs(); track motif) {
@@ -38,31 +38,44 @@
       </div>
     </div>
 
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  SKELETON                                                -->
+    <!-- ════════════════════════════════════════════════════════ -->
     @if (loading()) {
       <div class="skeleton-container">
-        <div class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-          <div class="skeleton-card" style="height: 350px; background: #eee;"></div>
-          <div class="skeleton-card" style="height: 350px; background: #eee;"></div>
-        </div>
-        <div class="skeleton-card" style="background: #eee; padding: 20px;">
-          <div class="skeleton-title" style="height: 20px; width: 200px; background: #ddd; margin-bottom: 10px;"></div>
-          <div class="skeleton-table">
-            @for (i of [1,2,3,4,5]; track i) {
-              <div class="skeleton-row" style="height: 30px; background: #ddd; margin-bottom: 5px;"></div>
-            }
+        <div class="charts-grid">
+          <div class="skeleton-card" style="height: 360px;">
+            <div class="skeleton-title"></div>
+          </div>
+          <div class="skeleton-card" style="height: 360px;">
+            <div class="skeleton-title"></div>
           </div>
         </div>
+        <div class="skeleton-card">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-table" style="height: 200px;"></div>
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="skeleton-row" style="height: 28px; margin-top: 6px; border-radius: 4px;
+                 background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);
+                 background-size: 200% 100%; animation: pulse 1.6s ease-in-out infinite;"></div>
+          }
+        </div>
       </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!--  CONTENU                                                  -->
+    <!-- ════════════════════════════════════════════════════════ -->
     } @else {
 
-      <div class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+      <!-- Graphiques côte à côte -->
+      <div class="charts-grid">
         <div class="data-card">
           <h2>Répartition par Motif (Jours)</h2>
-          <div style="height: 300px;">
+          <div style="height: 280px;">
             @if (motifChartData()) {
-              <canvas baseChart 
-                      [data]="motifChartData()!" 
-                      [options]="barOptions" 
+              <canvas baseChart
+                      [data]="motifChartData()!"
+                      [options]="barOptions"
                       [type]="'bar'">
               </canvas>
             }
@@ -71,11 +84,11 @@
 
         <div class="data-card">
           <h2>Top 10 Employés Absents</h2>
-          <div style="height: 300px;">
+          <div style="height: 280px;">
             @if (topAbsencesChartData()) {
-              <canvas baseChart 
-                      [data]="topAbsencesChartData()!" 
-                      [options]="horizontalOptions" 
+              <canvas baseChart
+                      [data]="topAbsencesChartData()!"
+                      [options]="horizontalOptions"
                       [type]="'bar'">
               </canvas>
             }
@@ -83,13 +96,14 @@
         </div>
       </div>
 
-      <div class="data-card" style="margin-bottom: 20px;">
-        <h2>Détails par Motif et Durées Moyennes</h2>
-        <div style="height: 250px; margin-bottom: 20px;">
+      <!-- Durée moyenne + tableau motifs -->
+      <div class="data-card">
+        <h2>Durées Moyennes par Motif</h2>
+        <div style="height: 230px; margin-bottom: 20px;">
           @if (dureeMoyenneChartData()) {
-            <canvas baseChart 
-                    [data]="dureeMoyenneChartData()!" 
-                    [options]="barOptions" 
+            <canvas baseChart
+                    [data]="dureeMoyenneChartData()!"
+                    [options]="barOptions"
                     [type]="'bar'">
             </canvas>
           }
@@ -101,7 +115,7 @@
               <th>Type</th>
               <th>Nb demandes</th>
               <th>Total jours</th>
-              <th>Durée Moy.</th>
+              <th>Durée moy.</th>
             </tr>
           </thead>
           <tbody>
@@ -114,15 +128,16 @@
                 <td>{{ formatJours(getDureeMoyenneForMotif(i)) }}</td>
               </tr>
             }
-            @empty { 
-              <tr><td colspan="5">Aucune donnée</td></tr> 
+            @empty {
+              <tr><td colspan="5">Aucune donnée disponible</td></tr>
             }
           </tbody>
         </table>
       </div>
 
-      <div class="data-card" style="margin-bottom: 20px;">
-        <h2>Historique des absences par année</h2>
+      <!-- Historique par année -->
+      <div class="data-card">
+        <h2>Historique par Année</h2>
         <table class="data-table">
           <thead>
             <tr>
@@ -143,15 +158,16 @@
                 <td>{{ formatJours(item.totalJours) }}</td>
               </tr>
             }
-            @empty { 
-              <tr><td colspan="5">Aucune donnée</td></tr> 
+            @empty {
+              <tr><td colspan="5">Aucune donnée disponible</td></tr>
             }
           </tbody>
         </table>
       </div>
 
+      <!-- Classement employés -->
       <div class="data-card">
-        <h2>Classement détaillé des employés</h2>
+        <h2>Classement Détaillé des Employés</h2>
         <table class="data-table">
           <thead>
             <tr>
@@ -170,11 +186,13 @@
                 <td>{{ emp.nbDemandes }}</td>
               </tr>
             }
-            @empty { 
-              <tr><td colspan="4">Aucune donnée</td></tr> 
+            @empty {
+              <tr><td colspan="4">Aucune donnée disponible</td></tr>
             }
           </tbody>
         </table>
       </div>
+
     }
-  </div> </div>
+  </div>
+</div>

@@ -1,40 +1,54 @@
 <div class="prets-container">
   <h1>Analyse des Prêts</h1>
-  
+
+  <!-- ── Export ───────────────────────────────────────────────── -->
   <div class="export-buttons">
-    <button (click)="exportPretsPDF()" class="btn-export pdf">PDF</button>
-    <button (click)="exportPretsExcel()" class="btn-export excel">Excel</button>
+    <button (click)="exportPretsPDF()" class="btn-export pdf">
+      <span class="material-icons">picture_as_pdf</span> PDF
+    </button>
+    <button (click)="exportPretsExcel()" class="btn-export excel">
+      <span class="material-icons">table_chart</span> Excel
+    </button>
   </div>
 
   <div id="prets-content">
-    
+
+    <!-- ── Filtres ──────────────────────────────────────────────── -->
     <div class="filters-bar">
       <div class="filter-group">
-        <label>Année :</label>
+        <label>Année</label>
         <input type="number" [(ngModel)]="selectedAnnee" (input)="onFiltreChange()">
       </div>
       <div class="filter-group">
-        <label>Service :</label>
+        <label>Service</label>
         <input type="text" [(ngModel)]="selectedService" placeholder="Tous les services" (input)="onFiltreChange()">
       </div>
       <div class="filter-group">
-        <label>Type de prêt :</label>
+        <label>Type de prêt</label>
         <input type="text" [(ngModel)]="selectedTypePret" placeholder="Tous les types" (input)="onFiltreChange()">
       </div>
     </div>
 
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  SKELETON                                                    -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     @if (loading()) {
       <div class="skeleton-container">
-        @for (i of [1, 2, 3, 4]; track i) {
+        @for (i of [1,2,3,4]; track i) {
           <div class="data-card">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 380px;"></div>
-            <div class="skeleton-table"></div>
+            <div class="skeleton-chart" style="height: 340px;"></div>
+            <div class="skeleton-table" style="margin-top: 20px;"></div>
           </div>
         }
       </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  CONTENU                                                      -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     } @else {
-      
+
+      <!-- Encours par type -->
       <div class="data-card">
         <h2>Encours par type de prêt</h2>
         <div class="chart-container">
@@ -58,10 +72,12 @@
                 <td>{{ formatMontant(item.montantMoyen) }}</td>
               </tr>
             }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Prêts par service -->
       <div class="data-card">
         <h2>Prêts par service</h2>
         <div class="chart-container">
@@ -85,10 +101,12 @@
                 <td>{{ formatMontant(item.montantMoyen) }}</td>
               </tr>
             }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Prêts par objet -->
       <div class="data-card">
         <h2>Prêts par objet</h2>
         <div class="chart-container">
@@ -108,10 +126,12 @@
                 <td>{{ item.nbPrets }}</td>
               </tr>
             }
+            @empty { <tr><td colspan="2">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Top Emprunteurs -->
       <div class="data-card">
         <h2>Top Emprunteurs</h2>
         <div class="chart-container">
@@ -135,9 +155,11 @@
                 <td>{{ emp.tauxMoyen }}%</td>
               </tr>
             }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
+
     }
   </div>
 </div>

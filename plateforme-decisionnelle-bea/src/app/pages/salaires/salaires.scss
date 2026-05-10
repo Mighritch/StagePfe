@@ -1,136 +1,82 @@
+// ═══════════════════════════════════════════════════════════
+// salaires.scss — Analyse des Salaires
+// ═══════════════════════════════════════════════════════════
+@use '../../../styles/shared' as *;
+
 .salaires-container {
-  padding: 20px;
+  padding: 32px 28px;
+  background: $bg-app;
+  min-height: 100vh;
+  font-family: $font-body;
 
-  h1 { 
-    margin-bottom: 20px; 
-    color: #333; 
+  // ── Page title ──────────────────────────────────────────
+  h1 {
+    @include page-title;
   }
 
-  // ── Barre de Filtres ──────────────────────────────────────────────
+  // ── Export buttons ──────────────────────────────────────
+  .export-buttons {
+    @include export-buttons;
+  }
+
+  // ── Filter bar ──────────────────────────────────────────
   .filters-bar {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      
-      label { 
-        font-weight: 500; 
-        color: #555; 
-      }
-      
-      input, select {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        outline: none;
-        &:focus { border-color: #4a90e2; }
-      }
-    }
+    @include filter-bar;
   }
 
-  // ── Messages d'état ──────────────────────────────────────────────
-  .loading { 
-    text-align: center; 
-    padding: 50px; 
-    color: #666; 
-  }
-
-  .error-message {
-    padding: 20px;
-    background: #fff5f5;
-    color: #c53030;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 20px;
-    border: 1px solid #feb2b2;
-  }
-
-  // ── Cartes de données et Graphiques ──────────────────────────────
+  // ── Data cards ───────────────────────────────────────────
   .data-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    
-    h2 { 
-      margin: 0 0 15px 0; 
-      font-size: 1.1rem; 
-      color: #333; 
+    @include card;
+    padding: 24px;
+    margin-bottom: 22px;
+
+    h2 {
+      @include section-title;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+      margin-bottom: 24px;
+    }
+
+    .data-table {
+      @include data-table;
+      border-radius: $radius-md;
+      overflow: hidden;
+      border: 1px solid $border;
+
+      // Variation column coloring
+      td.positive { color: $success; font-weight: 600; }
+      td.negative { color: $danger;  font-weight: 600; }
     }
   }
 
-  .chart-container {
-    position: relative;
-    height: 350px; // Essentiel pour le rendu correct de Chart.js
-    margin-bottom: 30px;
-    width: 100%;
+  // ── Error ────────────────────────────────────────────────
+  .error-message {
+    padding: 14px 18px;
+    background: $danger-pale;
+    color: $danger;
+    border-radius: $radius-md;
+    border: 1px solid rgba($danger, .2);
+    font-weight: 500;
+    margin-bottom: 20px;
+    &::before { content: '⚠ '; }
   }
 
-  // ── Tableau de données ───────────────────────────────────────────
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    
-    th, td { 
-      padding: 12px; 
-      text-align: left; 
-      border-bottom: 1px solid #eee; 
+  // ── Skeleton ─────────────────────────────────────────────
+  .skeleton-container {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+
+    .data-card {
+      @include card;
+      padding: 24px;
+
+      .skeleton-title { @include skeleton-pulse; height: 18px; width: 45%; margin-bottom: 16px; }
+      .skeleton-chart { @include skeleton-pulse; }
+      .skeleton-table { @include skeleton-pulse; }
     }
-    
-    th { 
-      background: #f8f9fa; 
-      font-weight: 600; 
-      color: #555; 
-    }
-    
-    tr:hover td { 
-      background: #f5f5f5; 
-    }
-    
-    .positive { color: #388e3c; font-weight: 500; }
-    .negative { color: #d32f2f; font-weight: 500; }
   }
-}
-
-// ── Skeleton Loader (Animation de chargement) ───────────────────────
-.skeleton-container {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.skeleton-title, .skeleton-table, .skeleton-chart {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 8px;
-}
-
-.skeleton-title {
-  width: 45%;
-  height: 26px;
-  margin-bottom: 18px;
-}
-
-.skeleton-table {
-  height: 240px;
-}
-
-.skeleton-chart {
-  height: 300px;
-}
-
-@keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }

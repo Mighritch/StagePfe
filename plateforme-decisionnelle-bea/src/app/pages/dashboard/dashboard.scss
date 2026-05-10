@@ -1,180 +1,176 @@
+// ═══════════════════════════════════════════════════════════
+// dashboard.scss — BEA Analytics Dashboard
+// ═══════════════════════════════════════════════════════════
+@use '../../../styles/shared' as *;
+
+// ── Palette tokens ────────────────────────────────────────────
+$card-colors: (
+  blue:   ($primary,       $primary-pale),
+  red:    ($danger,        $danger-pale),
+  green:  ($success,       $success-pale),
+  orange: ($warning,       $warning-pale),
+);
+
+// ═══════════════════════════════════════════════════════════
 .dashboard {
-  padding: 20px;
+  padding: 32px 28px;
+  background: $bg-app;
+  min-height: 100vh;
+  font-family: $font-body;
 
-  /* --- Styles du Skeleton Screen (Chargement) --- */
-  .skeleton-container {
-    .skeleton-stat {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-      .skeleton-icon {
-        width: 60px;
-        height: 60px;
-        background: #f0f0f0;
-        border-radius: 12px;
-        animation: loading 1.5s infinite;
-      }
-
-      .skeleton-info {
-        flex: 1;
-      }
-
-      .skeleton-title-small,
-      .skeleton-value,
-      .skeleton-label {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-        border-radius: 4px;
-        margin-bottom: 8px;
-      }
-
-      .skeleton-title-small { width: 60%; height: 14px; }
-      .skeleton-value { width: 70%; height: 32px; }
-      .skeleton-label { width: 50%; height: 12px; }
-    }
-
-    .skeleton-title {
-      width: 40%;
-      height: 20px;
-      background: #f0f0f0;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      animation: loading 1.5s infinite;
-    }
-
-    .skeleton-table {
-      width: 100%;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 8px;
-    }
+  // ── Header toolbar ───────────────────────────────────────
+  .export-buttons {
+    @include export-buttons;
+    justify-content: flex-end;
   }
 
-  /* --- Styles du Dashboard Réel --- */
+  // ── KPI Cards grid ───────────────────────────────────────
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
 
     .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
+      @include card;
+      padding: 22px 20px;
       display: flex;
       align-items: center;
-      gap: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
 
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      // Subtle accent stripe on top
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: $radius-lg $radius-lg 0 0;
       }
 
+      @include card-hover;
+
       .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
+        width: 52px;
+        height: 52px;
+        border-radius: $radius-md;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
 
-        &.blue { background: #e3f2fd; .material-icons { color: #1976d2; } }
-        &.red { background: #ffebee; .material-icons { color: #d32f2f; } }
-        &.green { background: #e8f5e9; .material-icons { color: #388e3c; } }
-        &.orange { background: #fff3e0; .material-icons { color: #f57c00; } }
+        .material-icons { font-size: 26px; }
 
-        .material-icons { font-size: 32px; }
+        @each $name, $pair in $card-colors {
+          &.#{$name} {
+            background: nth($pair, 2);
+            .material-icons { color: nth($pair, 1); }
+          }
+        }
+      }
+
+      @each $name, $pair in $card-colors {
+        &:has(.stat-icon.#{$name})::before {
+          background: nth($pair, 1);
+        }
       }
 
       .stat-info {
         flex: 1;
+        min-width: 0;
 
         h3 {
-          margin: 0 0 5px 0;
-          font-size: 0.85rem;
-          color: #666;
-          font-weight: 500;
+          font-family: $font-body;
+          font-size: .75rem;
+          font-weight: 600;
+          color: $text-secondary;
+          text-transform: uppercase;
+          letter-spacing: .06em;
+          margin: 0 0 4px 0;
         }
 
         .stat-value {
-          margin: 0;
-          font-size: 1.8rem;
-          font-weight: bold;
-          color: #333;
+          font-family: $font-head;
+          font-size: 1.65rem;
+          font-weight: 800;
+          color: $text-primary;
+          margin: 0 0 4px 0;
+          letter-spacing: -.03em;
+          line-height: 1;
         }
 
         .stat-label {
-          font-size: 0.75rem;
-          color: #999;
+          font-size: .75rem;
+          color: $text-muted;
+          font-weight: 500;
 
-          &.positive { color: #388e3c; }
-          &.negative { color: #d32f2f; }
-          &.neutral { color: #ff9800; }
+          &.positive { color: $success; }
+          &.negative { color: $danger; }
+          &.neutral  { color: $warning; }
         }
       }
     }
+
+    // Skeleton cards
+    .skeleton-stat {
+      @include card;
+      padding: 22px 20px;
+      display: flex;
+      gap: 16px;
+
+      .skeleton-icon  { @include skeleton-pulse; width: 52px; height: 52px; border-radius: $radius-md; flex-shrink: 0; }
+      .skeleton-info  { flex: 1; }
+      .skeleton-title-small { @include skeleton-pulse; height: 12px; width: 60%; margin-bottom: 8px; }
+      .skeleton-value { @include skeleton-pulse; height: 28px; width: 70%; margin-bottom: 8px; }
+      .skeleton-label { @include skeleton-pulse; height: 10px; width: 45%; }
+    }
   }
 
+  // ── 2-col chart row ──────────────────────────────────────
   .charts-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
   }
 
+  // ── Chart / content cards ────────────────────────────────
   .chart-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    @include card;
+    padding: 24px;
 
     h3 {
-      margin: 0 0 15px 0;
-      font-size: 1.1rem;
-      color: #333;
+      @include section-title;
     }
 
-    &.full-width {
-      grid-column: 1 / -1;
+    &.full-width { grid-column: 1 / -1; }
+
+    .chart-container {
+      position: relative;
     }
+
+    .table-container {
+      margin-top: 20px;
+      border-radius: $radius-md;
+      overflow: hidden;
+      border: 1px solid $border;
+    }
+
+    .data-table {
+      @include data-table;
+    }
+
+    // Skeleton inner
+    .skeleton-title { @include skeleton-pulse; height: 18px; width: 40%; margin-bottom: 16px; }
+    .skeleton-table { @include skeleton-pulse; border-radius: $radius-md; }
   }
 
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-
-    th {
-      background: #f5f5f5;
-      font-weight: 600;
-      color: #555;
-    }
-
-    td.positive { color: #388e3c; font-weight: 500; }
-    td.negative { color: #d32f2f; font-weight: 500; }
-
-    tr:hover td {
-      background: #f9f9f9;
-    }
+  // ── Empty states ─────────────────────────────────────────
+  td[colspan] {
+    text-align: center;
+    color: $text-muted;
+    font-style: italic;
+    padding: 24px !important;
   }
-}
-
-/* --- Animation Globale --- */
-@keyframes loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }

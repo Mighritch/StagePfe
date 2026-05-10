@@ -1,29 +1,36 @@
 <div class="effectifs-container">
   <h1>Analyse des Effectifs</h1>
 
+  <!-- ── Export ───────────────────────────────────────────────── -->
   <div class="export-buttons">
-    <button (click)="exportEffectifsPDF()" class="btn-export pdf">Exporter en PDF</button>
-    <button (click)="exportEffectifsExcel()" class="btn-export excel">Exporter en Excel</button>
+    <button (click)="exportEffectifsPDF()" class="btn-export pdf">
+      <span class="material-icons">picture_as_pdf</span> PDF
+    </button>
+    <button (click)="exportEffectifsExcel()" class="btn-export excel">
+      <span class="material-icons">table_chart</span> Excel
+    </button>
   </div>
 
   <div id="effectifs-content">
-    
+
+    <!-- ── Badge total ─────────────────────────────────────────── -->
     <div class="stats-summary">
-      <div class="stat-badge">Total employés : {{ getTotalEmployes() }}</div>
+      <span class="stat-badge">Total employés : {{ getTotalEmployes() }}</span>
     </div>
 
+    <!-- ── Filtres ──────────────────────────────────────────────── -->
     <div class="filters-bar">
       <div class="filter-group">
-        <label>Année :</label>
+        <label>Année</label>
         <input type="number" [(ngModel)]="selectedAnnee" (input)="onFiltreChange()">
       </div>
       <div class="filter-group">
-        <label>Service :</label>
-        <input type="text" [(ngModel)]="selectedService" placeholder="Nom du service" (input)="onFiltreChange()">
+        <label>Service</label>
+        <input type="text" [(ngModel)]="selectedService" placeholder="Tous les services" (input)="onFiltreChange()">
       </div>
       <div class="filter-group">
-        <label>Grade :</label>
-        <input type="text" [(ngModel)]="selectedGrade" placeholder="Grade" (input)="onFiltreChange()">
+        <label>Grade</label>
+        <input type="text" [(ngModel)]="selectedGrade" placeholder="Tous les grades" (input)="onFiltreChange()">
       </div>
     </div>
 
@@ -31,39 +38,45 @@
       <div class="error-banner">{{ error() }}</div>
     }
 
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  SKELETON                                                    -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     @if (loading()) {
       <div class="skeleton-container">
         <div class="charts-grid">
           <div class="chart-card span-2">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 300px;"></div>
+            <div class="skeleton-chart" style="height: 280px;"></div>
           </div>
           <div class="chart-card">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 300px;"></div>
+            <div class="skeleton-chart" style="height: 280px;"></div>
           </div>
           <div class="chart-card">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 300px;"></div>
+            <div class="skeleton-chart" style="height: 280px;"></div>
           </div>
           <div class="chart-card span-2">
             <div class="skeleton-title"></div>
-            <div class="skeleton-chart" style="height: 300px;"></div>
+            <div class="skeleton-chart" style="height: 280px;"></div>
           </div>
         </div>
-
-        <div class="data-card">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-table"></div>
-        </div>
-        <div class="data-card">
-          <div class="skeleton-title"></div>
-          <div class="skeleton-table"></div>
-        </div>
+        @for (i of [1,2,3]; track i) {
+          <div class="data-card">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-table"></div>
+          </div>
+        }
       </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!--  CONTENU                                                      -->
+    <!-- ════════════════════════════════════════════════════════════ -->
     } @else {
 
+      <!-- Graphiques -->
       <div class="charts-grid">
+
         <div class="chart-card span-2">
           <h2>Effectifs par service</h2>
           <div class="chart-wrap">
@@ -91,13 +104,20 @@
             <canvas baseChart [data]="chartEvolution()" [type]="'line'" [options]="lineOpts"></canvas>
           </div>
         </div>
+
       </div>
 
+      <!-- Tableau — par service -->
       <div class="data-card">
         <h2>Effectifs par service — détail</h2>
         <table class="data-table">
           <thead>
-            <tr><th>Service</th><th>Type</th><th>Grade</th><th>Nb employés</th></tr>
+            <tr>
+              <th>Service</th>
+              <th>Type</th>
+              <th>Grade</th>
+              <th>Nb employés</th>
+            </tr>
           </thead>
           <tbody>
             @for (item of effectifsParService(); track item.libServ) {
@@ -108,16 +128,22 @@
                 <td>{{ item.nbEmployes }}</td>
               </tr>
             }
-            @empty { <tr><td colspan="4">Aucune donnée</td></tr> }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Tableau — par grade -->
       <div class="data-card">
         <h2>Effectifs par grade — détail</h2>
         <table class="data-table">
           <thead>
-            <tr><th>Grade</th><th>Catégorie</th><th>Service</th><th>Nb employés</th></tr>
+            <tr>
+              <th>Grade</th>
+              <th>Catégorie</th>
+              <th>Service</th>
+              <th>Nb employés</th>
+            </tr>
           </thead>
           <tbody>
             @for (item of effectifsParGrade(); track item.libGrad) {
@@ -128,16 +154,23 @@
                 <td>{{ item.nbEmployes }}</td>
               </tr>
             }
-            @empty { <tr><td colspan="4">Aucune donnée</td></tr> }
+            @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
 
+      <!-- Tableau — par sexe -->
       <div class="data-card">
         <h2>Répartition par sexe — détail</h2>
         <table class="data-table">
           <thead>
-            <tr><th>Sexe</th><th>Nb employés</th><th>Pourcentage</th><th>Service</th><th>Grade</th></tr>
+            <tr>
+              <th>Sexe</th>
+              <th>Nb employés</th>
+              <th>Pourcentage</th>
+              <th>Service</th>
+              <th>Grade</th>
+            </tr>
           </thead>
           <tbody>
             @for (item of effectifsParSexe(); track item.sexe) {
@@ -149,9 +182,11 @@
                 <td>{{ item.libGrad }}</td>
               </tr>
             }
-            @empty { <tr><td colspan="5">Aucune donnée</td></tr> }
+            @empty { <tr><td colspan="5">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
+
     }
-  </div> </div>
+  </div>
+</div>

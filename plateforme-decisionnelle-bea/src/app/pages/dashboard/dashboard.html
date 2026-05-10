@@ -1,5 +1,7 @@
 <div class="dashboard">
-  <div class="export-buttons" style="margin-bottom: 20px; text-align: right;">
+
+  <!-- ── Toolbar export ──────────────────────────────────────── -->
+  <div class="export-buttons">
     <button (click)="exportDashboardPDF()" class="btn-export pdf" [disabled]="loading()">
       <span class="material-icons">picture_as_pdf</span> PDF
     </button>
@@ -8,10 +10,14 @@
     </button>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  SKELETON                                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (loading()) {
     <div class="skeleton-container">
+
       <div class="stats-grid">
-        @for (i of [1, 2, 3, 4]; track i) {
+        @for (i of [1,2,3,4]; track i) {
           <div class="stat-card skeleton-stat">
             <div class="skeleton-icon"></div>
             <div class="skeleton-info">
@@ -24,23 +30,30 @@
       </div>
 
       <div class="charts-row">
-        @for (i of [1, 2]; track i) {
+        @for (i of [1,2]; track i) {
           <div class="chart-card">
             <div class="skeleton-title"></div>
-            <div class="skeleton-table" style="height: 280px;"></div>
+            <div class="skeleton-table" style="height: 300px;"></div>
           </div>
         }
       </div>
-      
+
       <div class="chart-card full-width">
         <div class="skeleton-title"></div>
-        <div class="skeleton-table" style="height: 200px;"></div>
+        <div class="skeleton-table" style="height: 220px;"></div>
       </div>
+
     </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  CONTENU RÉEL                                              -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   } @else {
     <div id="dashboard-content">
-      
+
+      <!-- ── KPI Cards ──────────────────────────────────────── -->
       <div class="stats-grid">
+
         <div class="stat-card">
           <div class="stat-icon blue">
             <span class="material-icons">people</span>
@@ -48,7 +61,7 @@
           <div class="stat-info">
             <h3>Effectif Total</h3>
             <p class="stat-value">{{ formatNombre(totalEmployes()) }}</p>
-            <span class="stat-label">employés</span>
+            <span class="stat-label">employés actifs</span>
           </div>
         </div>
 
@@ -57,9 +70,9 @@
             <span class="material-icons">event_busy</span>
           </div>
           <div class="stat-info">
-            <h3>Demandes d'absence</h3>
+            <h3>Demandes d'Absence</h3>
             <p class="stat-value">{{ formatNombre(totalAbsences()) }}</p>
-            <span class="stat-label">demandes en {{ currentYear }}</span>
+            <span class="stat-label">en {{ currentYear }}</span>
           </div>
         </div>
 
@@ -68,15 +81,15 @@
             <span class="material-icons">account_balance</span>
           </div>
           <div class="stat-info">
-            <h3>Prêts accordés</h3>
+            <h3>Prêts Accordés</h3>
             <p class="stat-value">{{ formatNombre(totalPrets()) }}</p>
-            <span class="stat-label">prêts en {{ currentYear }}</span>
+            <span class="stat-label">en {{ currentYear }}</span>
           </div>
         </div>
 
         <div class="stat-card">
           <div class="stat-icon orange">
-            <span class="material-icons">attach_money</span>
+            <span class="material-icons">payments</span>
           </div>
           <div class="stat-info">
             <h3>Masse Salariale</h3>
@@ -84,25 +97,28 @@
             <span class="stat-label" [class]="getVariationClass(tauxAbsenteisme())">
               @if (tauxAbsenteisme() > 0) { ▲ }
               @if (tauxAbsenteisme() < 0) { ▼ }
-              {{ tauxAbsenteisme() }}% vs année précédente
+              {{ tauxAbsenteisme() }}% vs année préc.
             </span>
           </div>
         </div>
+
       </div>
 
+      <!-- ── Row: graphiques ────────────────────────────────── -->
       <div class="charts-row">
+
+        <!-- Absences par année -->
         <div class="chart-card">
           <h3>Absences par année</h3>
-          <div class="chart-container" style="height: 300px; margin-bottom: 1.5rem;">
+          <div class="chart-container" style="height: 280px; margin-bottom: 20px;">
             @if (absencesChartData()) {
-              <canvas baseChart 
-                      [data]="absencesChartData()!" 
-                      [options]="lineOptions" 
+              <canvas baseChart
+                      [data]="absencesChartData()!"
+                      [options]="lineOptions"
                       [type]="'line'">
               </canvas>
             }
           </div>
-          
           <div class="table-container">
             <table class="data-table">
               <thead>
@@ -122,13 +138,14 @@
                     <td>{{ item.totalJours }}</td>
                   </tr>
                 } @empty {
-                  <tr><td colspan="4">Aucune donnée</td></tr>
+                  <tr><td colspan="4">Aucune donnée disponible</td></tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Top emprunteurs -->
         <div class="chart-card">
           <h3>Top Emprunteurs {{ currentYear }}</h3>
           <div class="table-container">
@@ -138,7 +155,7 @@
                   <th>Employé</th>
                   <th>Nb prêts</th>
                   <th>Total emprunté</th>
-                  <th>Taux moyen</th>
+                  <th>Taux moy.</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,26 +167,27 @@
                     <td>{{ emp.tauxMoyen }}%</td>
                   </tr>
                 } @empty {
-                  <tr><td colspan="4">Aucune donnée</td></tr>
+                  <tr><td colspan="4">Aucune donnée disponible</td></tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
+
       </div>
 
+      <!-- ── Évolution masse salariale ──────────────────────── -->
       <div class="chart-card full-width">
         <h3>Évolution de la Masse Salariale</h3>
-        <div class="chart-container" style="height: 350px; margin-bottom: 1.5rem;">
+        <div class="chart-container" style="height: 320px; margin-bottom: 20px;">
           @if (evolutionMasseChartData()) {
-            <canvas baseChart 
-                    [data]="evolutionMasseChartData()!" 
-                    [options]="lineOptions" 
+            <canvas baseChart
+                    [data]="evolutionMasseChartData()!"
+                    [options]="lineOptions"
                     [type]="'line'">
             </canvas>
           }
         </div>
-
         <div class="table-container">
           <table class="data-table">
             <thead>
@@ -187,8 +205,7 @@
                   <td>{{ formatMontant(item.masseSalariale) }}</td>
                   <td>{{ formatMontant(item.massePrec) }}</td>
                   <td [class]="getVariationClass(item.variationPct)">
-                    @if (item.variationPct > 0) { + }
-                    {{ item.variationPct }}%
+                    @if (item.variationPct > 0) { + }{{ item.variationPct }}%
                   </td>
                 </tr>
               }
@@ -196,5 +213,8 @@
           </table>
         </div>
       </div>
-    </div> }
+
+    </div>
+  }
+
 </div>
