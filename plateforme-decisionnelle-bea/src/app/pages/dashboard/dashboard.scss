@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════════════════════
 // dashboard.scss — BEA Analytics Dashboard
 // ═══════════════════════════════════════════════════════════
+
 @use '../../../styles/shared' as *;
+@use 'sass:list';        // ← Ajout obligatoire pour list.nth()
 
 // ── Palette tokens ────────────────────────────────────────────
 $card-colors: (
-  blue:   ($primary,       $primary-pale),
-  red:    ($danger,        $danger-pale),
-  green:  ($success,       $success-pale),
-  orange: ($warning,       $warning-pale),
+  "blue":   ($primary,       $primary-pale),
+  "red":    ($danger,        $danger-pale),
+  "green":  ($success,       $success-pale),
+  "orange": ($warning,       $warning-pale),
 );
 
 // ═══════════════════════════════════════════════════════════
@@ -64,15 +66,15 @@ $card-colors: (
 
         @each $name, $pair in $card-colors {
           &.#{$name} {
-            background: nth($pair, 2);
-            .material-icons { color: nth($pair, 1); }
+            background: list.nth($pair, 2);
+            .material-icons { color: list.nth($pair, 1); }
           }
         }
       }
 
       @each $name, $pair in $card-colors {
         &:has(.stat-icon.#{$name})::before {
-          background: nth($pair, 1);
+          background: list.nth($pair, 1);
         }
       }
 

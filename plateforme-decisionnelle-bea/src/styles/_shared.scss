@@ -2,6 +2,8 @@
 // _shared.scss — Design System Commun BEA Analytics
 // ═══════════════════════════════════════════════════════════
 
+@use 'sass:color';   // ← Ajout obligatoire pour color.adjust()
+
 // ── Palette ──────────────────────────────────────────────────
 $primary:        #1e40af;
 $primary-light:  #3b82f6;
@@ -27,7 +29,6 @@ $bg-card:        #ffffff;
 $bg-header:      #f8fafc;
 
 // ── Typography ────────────────────────────────────────────────
-// Import Sora (headings) + DM Sans (body) — distinctif et moderne
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
 
 $font-head: 'Sora', sans-serif;
@@ -226,9 +227,9 @@ $transition: all .2s cubic-bezier(.4,0,.2,1);
       background: $danger;
       color: white;
       &:hover:not(:disabled) {
-        background: darken($danger, 8%);
+        background: color.adjust($danger, $lightness: -8%);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba($danger,.3);
+        box-shadow: 0 4px 12px rgba($danger, .3);
       }
     }
 
@@ -236,9 +237,9 @@ $transition: all .2s cubic-bezier(.4,0,.2,1);
       background: $success;
       color: white;
       &:hover:not(:disabled) {
-        background: darken($success, 8%);
+        background: color.adjust($success, $lightness: -8%);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba($success,.3);
+        box-shadow: 0 4px 12px rgba($success, .3);
       }
     }
   }
