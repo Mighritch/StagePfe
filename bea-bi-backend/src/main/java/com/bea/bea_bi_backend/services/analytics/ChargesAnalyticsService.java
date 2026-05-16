@@ -3,12 +3,14 @@ package com.bea.bea_bi_backend.services.analytics;
 import com.bea.bea_bi_backend.entities.analytics.*;
 import com.bea.bea_bi_backend.repositories.analytics.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChargesAnalyticsService {
@@ -21,36 +23,52 @@ public class ChargesAnalyticsService {
     private final VwTauxChargeServiceRepository        tauxChargeServiceRepo;
     private final ExportService                        exportService;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  DONNÉES
-    // ─────────────────────────────────────────────────────────────────────────
-
     public List<VwMasseSalarialeMois> getMasseSalarialeMois(String service, Integer annee, Integer mois) {
-        if (service != null || annee != null || mois != null) {
-            return masseSalarialeMoisRepo.findByFiltres(service, annee, mois);
+        try {
+            if (service != null || annee != null || mois != null) {
+                return masseSalarialeMoisRepo.findByFiltres(service, annee, mois);
+            }
+            return masseSalarialeMoisRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération masse salariale par mois", e);
+            throw new RuntimeException("Impossible de récupérer les données de masse salariale mensuelle", e);
         }
-        return masseSalarialeMoisRepo.findAll();
     }
 
     public List<VwChargesParTypeBulletin> getChargesParTypeBulletin(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return chargesParTypeBulletinRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return chargesParTypeBulletinRepo.findByFiltres(service, annee);
+            }
+            return chargesParTypeBulletinRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération charges par type bulletin", e);
+            throw new RuntimeException("Impossible de récupérer les charges par type de bulletin", e);
         }
-        return chargesParTypeBulletinRepo.findAll();
     }
 
     public List<VwMasseSalarialeService> getMasseSalarialeService(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return masseSalarialeServiceRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return masseSalarialeServiceRepo.findByFiltres(service, annee);
+            }
+            return masseSalarialeServiceRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération masse salariale par service", e);
+            throw new RuntimeException("Impossible de récupérer la masse salariale par service", e);
         }
-        return masseSalarialeServiceRepo.findAll();
     }
 
     public List<VwSalaireParGrade> getSalaireParGrade(String grade, String service, Integer annee) {
-        if (grade != null || service != null || annee != null) {
-            return salaireParGradeRepo.findByFiltres(grade, service, annee);
+        try {
+            if (grade != null || service != null || annee != null) {
+                return salaireParGradeRepo.findByFiltres(grade, service, annee);
+            }
+            return salaireParGradeRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération salaire par grade", e);
+            throw new RuntimeException("Impossible de récupérer les salaires par grade", e);
         }
-        return salaireParGradeRepo.findAll();
     }
 
     public List<VwEvolutionMasseSalariale> getEvolutionMasseSalariale(Integer annee) {
@@ -60,21 +78,22 @@ public class ChargesAnalyticsService {
             }
             return evolutionMasseSalarialeRepo.findAll();
         } catch (Exception e) {
-            System.err.println("Erreur sur evolution masse salariale, utilisation du fallback: " + e.getMessage());
+            log.error("Erreur sur evolution masse salariale", e);
             return List.of();
         }
     }
 
     public List<VwTauxChargeService> getTauxChargeService(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return tauxChargeServiceRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return tauxChargeServiceRepo.findByFiltres(service, annee);
+            }
+            return tauxChargeServiceRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération taux de charge par service", e);
+            throw new RuntimeException("Impossible de récupérer les taux de charge", e);
         }
-        return tauxChargeServiceRepo.findAll();
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT EXCEL
-    // ─────────────────────────────────────────────────────────────────────────
 
     public byte[] exportMasseSalarialeMoisExcel(String service, Integer annee, Integer mois) {
         List<VwMasseSalarialeMois> data = getMasseSalarialeMois(service, annee, mois);
@@ -136,10 +155,6 @@ public class ChargesAnalyticsService {
         );
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT PDF
-    // ─────────────────────────────────────────────────────────────────────────
-
     public byte[] exportMasseSalarialeMoisPdf(String service, Integer annee, Integer mois) {
         List<VwMasseSalarialeMois> data = getMasseSalarialeMois(service, annee, mois);
         Map<String, Object> params = buildParams("Masse Salariale par Mois", service, annee);
@@ -173,10 +188,6 @@ public class ChargesAnalyticsService {
         List<VwTauxChargeService> data = getTauxChargeService(service, annee);
         return exportService.exportToPdf(data, "taux_charge_service", buildParams("Taux de Charge par Service", service, annee));
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  UTILITAIRE PRIVÉ
-    // ─────────────────────────────────────────────────────────────────────────
 
     private Map<String, Object> buildParams(String title, String service, Integer annee) {
         Map<String, Object> params = new HashMap<>();

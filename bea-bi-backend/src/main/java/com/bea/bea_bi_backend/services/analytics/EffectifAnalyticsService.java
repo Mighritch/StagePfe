@@ -3,12 +3,14 @@ package com.bea.bea_bi_backend.services.analytics;
 import com.bea.bea_bi_backend.entities.analytics.*;
 import com.bea.bea_bi_backend.repositories.analytics.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EffectifAnalyticsService {
@@ -22,62 +24,89 @@ public class EffectifAnalyticsService {
     private final VwEffectifParAffectationRepository  effectifParAffectationRepo;
     private final ExportService                       exportService;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  DONNÉES
-    // ─────────────────────────────────────────────────────────────────────────
-
     public List<VwEffectifParService> getEffectifParService(String service, String grade, Integer annee) {
-        if (service != null || grade != null || annee != null) {
-            return effectifParServiceRepo.findByFiltres(service, grade, annee);
+        try {
+            if (service != null || grade != null || annee != null) {
+                return effectifParServiceRepo.findByFiltres(service, grade, annee);
+            }
+            return effectifParServiceRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif par service", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif par service", e);
         }
-        return effectifParServiceRepo.findAll();
     }
 
     public List<VwEffectifParGrade> getEffectifParGrade(String grade, String service, Integer annee) {
-        if (grade != null || service != null || annee != null) {
-            return effectifParGradeRepo.findByFiltres(grade, service, annee);
+        try {
+            if (grade != null || service != null || annee != null) {
+                return effectifParGradeRepo.findByFiltres(grade, service, annee);
+            }
+            return effectifParGradeRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif par grade", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif par grade", e);
         }
-        return effectifParGradeRepo.findAll();
     }
 
     public List<VwEffectifParAdmtech> getEffectifParAdmtech(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return effectifParAdmtechRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return effectifParAdmtechRepo.findByFiltres(service, annee);
+            }
+            return effectifParAdmtechRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif admin/tech", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif admin/tech", e);
         }
-        return effectifParAdmtechRepo.findAll();
     }
 
     public List<VwEffectifParSexe> getEffectifParSexe(String service, String grade, Integer annee) {
-        if (service != null || grade != null || annee != null) {
-            return effectifParSexeRepo.findByFiltres(service, grade, annee);
+        try {
+            if (service != null || grade != null || annee != null) {
+                return effectifParSexeRepo.findByFiltres(service, grade, annee);
+            }
+            return effectifParSexeRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif par sexe", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif par sexe", e);
         }
-        return effectifParSexeRepo.findAll();
     }
 
     public List<VwEffectifEvolution> getEffectifEvolution(String service, String grade, Integer annee) {
-        if (service != null || grade != null || annee != null) {
-            return effectifEvolutionRepo.findByFiltres(service, grade, annee);
+        try {
+            if (service != null || grade != null || annee != null) {
+                return effectifEvolutionRepo.findByFiltres(service, grade, annee);
+            }
+            return effectifEvolutionRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération évolution de l'effectif", e);
+            throw new RuntimeException("Impossible de récupérer l'évolution de l'effectif", e);
         }
-        return effectifEvolutionRepo.findAll();
     }
 
     public List<VwEffectifServiceGrade> getEffectifServiceGrade(String service, String grade, Integer annee) {
-        if (service != null || grade != null || annee != null) {
-            return effectifServiceGradeRepo.findByFiltres(service, grade, annee);
+        try {
+            if (service != null || grade != null || annee != null) {
+                return effectifServiceGradeRepo.findByFiltres(service, grade, annee);
+            }
+            return effectifServiceGradeRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif service/grade", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif service/grade", e);
         }
-        return effectifServiceGradeRepo.findAll();
     }
 
     public List<VwEffectifParAffectation> getEffectifParAffectation(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return effectifParAffectationRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return effectifParAffectationRepo.findByFiltres(service, annee);
+            }
+            return effectifParAffectationRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération effectif par affectation", e);
+            throw new RuntimeException("Impossible de récupérer l'effectif par affectation", e);
         }
-        return effectifParAffectationRepo.findAll();
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT EXCEL
-    // ─────────────────────────────────────────────────────────────────────────
 
     public byte[] exportEffectifParServiceExcel(String service, String grade, Integer annee) {
         List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
@@ -149,10 +178,6 @@ public class EffectifAnalyticsService {
         );
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT PDF
-    // ─────────────────────────────────────────────────────────────────────────
-
     public byte[] exportEffectifParServicePdf(String service, String grade, Integer annee) {
         List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
         return exportService.exportToPdf(data, "effectif_par_service", buildParams("Effectif par Service", service, grade, annee));
@@ -187,10 +212,6 @@ public class EffectifAnalyticsService {
         List<VwEffectifParAffectation> data = getEffectifParAffectation(service, annee);
         return exportService.exportToPdf(data, "effectif_par_affectation", buildParams("Effectif par Affectation", service, null, annee));
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  UTILITAIRE PRIVÉ
-    // ─────────────────────────────────────────────────────────────────────────
 
     private Map<String, Object> buildParams(String title, String service, String grade, Integer annee) {
         Map<String, Object> params = new HashMap<>();

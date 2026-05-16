@@ -3,12 +3,14 @@ package com.bea.bea_bi_backend.services.analytics;
 import com.bea.bea_bi_backend.entities.analytics.*;
 import com.bea.bea_bi_backend.repositories.analytics.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CreditAnalyticsService {
@@ -22,62 +24,89 @@ public class CreditAnalyticsService {
     private final VwTopEmprunteursRepository        topEmprunteursRepo;
     private final ExportService                     exportService;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  DONNÉES
-    // ─────────────────────────────────────────────────────────────────────────
-
     public List<VwEncoursParTypePret> getEncoursParTypePret(String typPret, String service, Integer annee) {
-        if (typPret != null || service != null || annee != null) {
-            return encoursParTypePretRepo.findByFiltres(typPret, service, annee);
+        try {
+            if (typPret != null || service != null || annee != null) {
+                return encoursParTypePretRepo.findByFiltres(typPret, service, annee);
+            }
+            return encoursParTypePretRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération encours par type de prêt", e);
+            throw new RuntimeException("Impossible de récupérer les encours", e);
         }
-        return encoursParTypePretRepo.findAll();
     }
 
     public List<VwTauxInteretPret> getTauxInteretPret(String typPret, Integer annee) {
-        if (typPret != null || annee != null) {
-            return tauxInteretPretRepo.findByFiltres(typPret, annee);
+        try {
+            if (typPret != null || annee != null) {
+                return tauxInteretPretRepo.findByFiltres(typPret, annee);
+            }
+            return tauxInteretPretRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération taux d'intérêt", e);
+            throw new RuntimeException("Impossible de récupérer les taux d'intérêt", e);
         }
-        return tauxInteretPretRepo.findAll();
     }
 
     public List<VwPretsParService> getPretsParService(String service, String typPret, Integer annee) {
-        if (service != null || typPret != null || annee != null) {
-            return pretsParServiceRepo.findByFiltres(service, typPret, annee);
+        try {
+            if (service != null || typPret != null || annee != null) {
+                return pretsParServiceRepo.findByFiltres(service, typPret, annee);
+            }
+            return pretsParServiceRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération prêts par service", e);
+            throw new RuntimeException("Impossible de récupérer les prêts par service", e);
         }
-        return pretsParServiceRepo.findAll();
     }
 
     public List<VwCapitalRestantPret> getCapitalRestantPret(String typPret, Integer annee) {
-        if (typPret != null || annee != null) {
-            return capitalRestantPretRepo.findByFiltres(typPret, annee);
+        try {
+            if (typPret != null || annee != null) {
+                return capitalRestantPretRepo.findByFiltres(typPret, annee);
+            }
+            return capitalRestantPretRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération capital restant", e);
+            throw new RuntimeException("Impossible de récupérer le capital restant", e);
         }
-        return capitalRestantPretRepo.findAll();
     }
 
     public List<VwPretsParDuree> getPretsParDuree(String service, Integer annee, Integer duree) {
-        if (service != null || annee != null || duree != null) {
-            return pretsParDureeRepo.findByFiltres(service, annee, duree);
+        try {
+            if (service != null || annee != null || duree != null) {
+                return pretsParDureeRepo.findByFiltres(service, annee, duree);
+            }
+            return pretsParDureeRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération prêts par durée", e);
+            throw new RuntimeException("Impossible de récupérer les prêts par durée", e);
         }
-        return pretsParDureeRepo.findAll();
     }
 
     public List<VwPretsParObjet> getPretsParObjet(String service, Integer annee, String objet) {
-        if (service != null || annee != null || objet != null) {
-            return pretsParObjetRepo.findByFiltres(service, annee, objet);
+        try {
+            if (service != null || annee != null || objet != null) {
+                return pretsParObjetRepo.findByFiltres(service, annee, objet);
+            }
+            return pretsParObjetRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération prêts par objet", e);
+            throw new RuntimeException("Impossible de récupérer les prêts par objet", e);
         }
-        return pretsParObjetRepo.findAll();
     }
 
     public List<VwTopEmprunteurs> getTopEmprunteurs(String service, Integer annee) {
-        if (service != null || annee != null) {
-            return topEmprunteursRepo.findByFiltres(service, annee);
+        try {
+            if (service != null || annee != null) {
+                return topEmprunteursRepo.findByFiltres(service, annee);
+            }
+            return topEmprunteursRepo.findAll();
+        } catch (Exception e) {
+            log.error("Erreur récupération top emprunteurs", e);
+            throw new RuntimeException("Impossible de récupérer le top emprunteurs", e);
         }
-        return topEmprunteursRepo.findAll();
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT EXCEL
-    // ─────────────────────────────────────────────────────────────────────────
 
     public byte[] exportEncoursParTypePretExcel(String typPret, String service, Integer annee) {
         List<VwEncoursParTypePret> data = getEncoursParTypePret(typPret, service, annee);
@@ -149,10 +178,6 @@ public class CreditAnalyticsService {
         );
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  EXPORT PDF
-    // ─────────────────────────────────────────────────────────────────────────
-
     public byte[] exportEncoursParTypePretPdf(String typPret, String service, Integer annee) {
         List<VwEncoursParTypePret> data = getEncoursParTypePret(typPret, service, annee);
         Map<String, Object> params = buildParams("Encours par Type de Prêt", service, annee);
@@ -200,15 +225,11 @@ public class CreditAnalyticsService {
         return exportService.exportToPdf(data, "top_emprunteurs", buildParams("Top Emprunteurs", service, annee));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  UTILITAIRE PRIVÉ
-    // ─────────────────────────────────────────────────────────────────────────
-
     private Map<String, Object> buildParams(String title, String service, Integer annee) {
         Map<String, Object> params = new HashMap<>();
         params.put("REPORT_TITLE", title);
         if (service != null) params.put("service", service);
-        if (annee  != null) params.put("annee",   annee);
+        if (annee != null) params.put("annee", annee);
         return params;
     }
 }
