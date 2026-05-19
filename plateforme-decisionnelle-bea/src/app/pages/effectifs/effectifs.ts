@@ -78,6 +78,10 @@ export class Effectifs implements OnInit {
       evolution : this.effectifService.getEffectifEvolution(service, grade, annee),
     }).subscribe({
       next: ({ parService, parGrade, parSexe, evolution }) => {
+        // --- Logs de débogage pour le Sexe ---
+        console.log('Données par sexe reçues:', parSexe);
+        console.log('Premier élément:', parSexe[0]);
+        
         this.effectifsParService.set(parService);
         this.effectifsParGrade.set(parGrade);
         this.effectifsParSexe.set(parSexe);

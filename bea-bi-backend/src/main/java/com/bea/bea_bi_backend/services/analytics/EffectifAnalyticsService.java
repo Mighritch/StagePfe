@@ -2,6 +2,8 @@ package com.bea.bea_bi_backend.services.analytics;
 
 import com.bea.bea_bi_backend.entities.analytics.*;
 import com.bea.bea_bi_backend.repositories.analytics.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,12 @@ public class EffectifAnalyticsService {
     private final VwEffectifServiceGradeRepository    effectifServiceGradeRepo;
     private final VwEffectifParAffectationRepository  effectifParAffectationRepo;
     private final ExportService                       exportService;
+    
+    private final EntityManager entityManager;
+
+    // ============================================================
+    // DONNÉES
+    // ============================================================
 
     public List<VwEffectifParService> getEffectifParService(String service, String grade, Integer annee) {
         try {
@@ -67,8 +75,33 @@ public class EffectifAnalyticsService {
             }
             return effectifParSexeRepo.findAll();
         } catch (Exception e) {
-            log.error("Erreur récupération effectif par sexe", e);
-            throw new RuntimeException("Impossible de récupérer l'effectif par sexe", e);
+            log.warn("Erreur Repository, tentative via Fallback native query", e);
+            return getEffectifParSexeFallback();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<VwEffectifParSexe> getEffectifParSexeFallback() {
+        try {
+            String sql = """
+                SELECT 
+                    ROW_NUMBER() OVER (ORDER BY p.SEXE) as ROW_ID,
+                    p.SEXE as sexe,
+                    SUM(f.NB_EFFECTIF) as nbEmployes,
+                    ROUND(SUM(f.NB_EFFECTIF) * 100.0 / SUM(SUM(f.NB_EFFECTIF)) OVER(), 2) as pourcentage,
+                    NULL as libServ,
+                    NULL as libGrad,
+                    EXTRACT(YEAR FROM SYSDATE) as annee
+                FROM FACT_EFFECTIF f
+                JOIN DIM_PERSONNEL p ON p.PERSONNEL_KEY = f.PERSONNEL_KEY
+                GROUP BY p.SEXE
+            """;
+            
+            Query query = entityManager.createNativeQuery(sql, VwEffectifParSexe.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error("Fallback query failed", e);
+            return List.of();
         }
     }
 
@@ -108,13 +141,17 @@ public class EffectifAnalyticsService {
         }
     }
 
+    // ============================================================
+    // EXPORT EXCEL
+    // ============================================================
+
     public byte[] exportEffectifParServiceExcel(String service, String grade, Integer annee) {
         List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
         return exportService.exportToExcel(
                 data,
                 "Effectif par Service",
-                new String[]{"service", "grade", "annee", "effectif"},
-                new String[]{"Service", "Grade", "Année", "Effectif"}
+                new String[]{"libServ", "typeServ", "libGrad", "nbEmployes"},
+                new String[]{"Service", "Type", "Grade", "Effectif"}
         );
     }
 
@@ -123,8 +160,8 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Effectif par Grade",
-                new String[]{"grade", "service", "annee", "effectif", "pourcentage"},
-                new String[]{"Grade", "Service", "Année", "Effectif", "Pourcentage (%)"}
+                new String[]{"libGrad", "codCateg", "libServ", "nbEmployes", "pourcentage"},
+                new String[]{"Grade", "Catégorie", "Service", "Effectif", "Pourcentage (%)"}
         );
     }
 
@@ -133,7 +170,7 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Effectif Administratif / Technique",
-                new String[]{"service", "annee", "categorie", "effectif", "pourcentage"},
+                new String[]{"libServ", "annee", "categorie", "effectif", "pourcentage"},
                 new String[]{"Service", "Année", "Catégorie", "Effectif", "Pourcentage (%)"}
         );
     }
@@ -143,8 +180,8 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Effectif par Sexe",
-                new String[]{"service", "grade", "annee", "sexe", "effectif", "pourcentage"},
-                new String[]{"Service", "Grade", "Année", "Sexe", "Effectif", "Pourcentage (%)"}
+                new String[]{"sexe", "nbEmployes", "pourcentage", "libServ", "libGrad", "annee"},
+                new String[]{"Sexe", "Effectif", "Pourcentage (%)", "Service", "Grade", "Année"}
         );
     }
 
@@ -153,7 +190,7 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Évolution de l'Effectif",
-                new String[]{"service", "grade", "annee", "effectif", "evolution", "tauxEvolution"},
+                new String[]{"libServ", "libGrad", "annee", "effectif", "evolution", "tauxEvolution"},
                 new String[]{"Service", "Grade", "Année", "Effectif", "Évolution", "Taux d'évolution (%)"}
         );
     }
@@ -163,7 +200,7 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Effectif Service / Grade",
-                new String[]{"service", "grade", "annee", "effectif"},
+                new String[]{"libServ", "libGrad", "annee", "effectif"},
                 new String[]{"Service", "Grade", "Année", "Effectif"}
         );
     }
@@ -173,10 +210,14 @@ public class EffectifAnalyticsService {
         return exportService.exportToExcel(
                 data,
                 "Effectif par Affectation",
-                new String[]{"service", "annee", "affectation", "effectif", "pourcentage"},
+                new String[]{"libServ", "annee", "affectation", "effectif", "pourcentage"},
                 new String[]{"Service", "Année", "Affectation", "Effectif", "Pourcentage (%)"}
         );
     }
+
+    // ============================================================
+    // EXPORT PDF
+    // ============================================================
 
     public byte[] exportEffectifParServicePdf(String service, String grade, Integer annee) {
         List<VwEffectifParService> data = getEffectifParService(service, grade, annee);
@@ -217,8 +258,8 @@ public class EffectifAnalyticsService {
         Map<String, Object> params = new HashMap<>();
         params.put("REPORT_TITLE", title);
         if (service != null) params.put("service", service);
-        if (grade   != null) params.put("grade",   grade);
-        if (annee   != null) params.put("annee",   annee);
+        if (grade != null) params.put("grade", grade);
+        if (annee != null) params.put("annee", annee);
         return params;
     }
 }

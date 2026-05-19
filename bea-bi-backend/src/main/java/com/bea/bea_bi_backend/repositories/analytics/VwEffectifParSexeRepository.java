@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface VwEffectifParSexeRepository
-        extends JpaRepository<VwEffectifParSexe, String> {
+        extends JpaRepository<VwEffectifParSexe, Long> {
 
     @Query("SELECT v FROM VwEffectifParSexe v " +
             "WHERE (:service IS NULL OR v.libServ = :service) " +
