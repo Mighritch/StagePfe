@@ -14,6 +14,9 @@ import java.math.BigDecimal;
 public class VwEncoursParTypePret {
 
     @Id
+    @Column(name = "ID_VUE")
+    private String idVue;
+
     @Column(name = "LIB_PRET")
     private String libPret;
 
@@ -32,7 +35,6 @@ public class VwEncoursParTypePret {
     @Column(name = "MONTANT_MOYEN", precision = 12, scale = 3)
     private BigDecimal montantMoyen;
 
-    // Ajout des colonnes pour le filtrage (Correction Repository)
     @Column(name = "LIB_SERV")
     private String libServ;
 

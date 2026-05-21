@@ -1,7 +1,6 @@
 <div class="prets-container">
   <h1>Analyse des Prêts</h1>
 
-  <!-- ── Export ───────────────────────────────────────────────── -->
   <div class="export-buttons">
     <button (click)="exportPretsPDF()" class="btn-export pdf">
       <span class="material-icons">picture_as_pdf</span> PDF
@@ -13,7 +12,6 @@
 
   <div id="prets-content">
 
-    <!-- ── Filtres ──────────────────────────────────────────────── -->
     <div class="filters-bar">
       <div class="filter-group">
         <label>Année</label>
@@ -29,9 +27,6 @@
       </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!--  SKELETON                                                    -->
-    <!-- ════════════════════════════════════════════════════════════ -->
     @if (loading()) {
       <div class="skeleton-container">
         @for (i of [1,2,3,4]; track i) {
@@ -42,13 +37,8 @@
           </div>
         }
       </div>
-
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!--  CONTENU                                                      -->
-    <!-- ════════════════════════════════════════════════════════════ -->
     } @else {
 
-      <!-- Encours par type -->
       <div class="data-card">
         <h2>Encours par type de prêt</h2>
         <div class="chart-container">
@@ -66,10 +56,10 @@
           <tbody>
             @for (item of encoursParType(); track item.libPret) {
               <tr>
-                <td>{{ item.libPret }}</td>
-                <td>{{ item.nbPrets }}</td>
-                <td>{{ formatMontant(item.encoursTotal) }}</td>
-                <td>{{ formatMontant(item.montantMoyen) }}</td>
+                <td>{{ item?.libPret }}</td>
+                <td>{{ item?.nbPrets }}</td>
+                <td>{{ formatMontant(item?.encoursTotal || 0) }}</td>
+                <td>{{ formatMontant(item?.montantMoyen || 0) }}</td>
               </tr>
             }
             @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
@@ -77,7 +67,6 @@
         </table>
       </div>
 
-      <!-- Prêts par service -->
       <div class="data-card">
         <h2>Prêts par service</h2>
         <div class="chart-container">
@@ -95,10 +84,10 @@
           <tbody>
             @for (item of pretsParService(); track item.libServ) {
               <tr>
-                <td>{{ item.libServ }}</td>
-                <td>{{ item.nbPrets }}</td>
-                <td>{{ formatMontant(item.totalCredit) }}</td>
-                <td>{{ formatMontant(item.montantMoyen) }}</td>
+                <td>{{ item?.libServ }}</td>
+                <td>{{ item?.nbPrets }}</td>
+                <td>{{ formatMontant(item?.totalCredit || 0) }}</td>
+                <td>{{ formatMontant(item?.montantMoyen || 0) }}</td>
               </tr>
             }
             @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
@@ -106,7 +95,6 @@
         </table>
       </div>
 
-      <!-- Prêts par objet -->
       <div class="data-card">
         <h2>Prêts par objet</h2>
         <div class="chart-container">
@@ -120,10 +108,10 @@
             </tr>
           </thead>
           <tbody>
-            @for (item of pretsParObjet(); track item.objetPret) {
+            @for (item of pretsParObjet(); track $index) {
               <tr>
-                <td>{{ item.objetPret }}</td>
-                <td>{{ item.nbPrets }}</td>
+                <td>{{ item?.objetPret || 'N/A' }}</td>
+                <td>{{ item?.nbPrets || 0 }}</td>
               </tr>
             }
             @empty { <tr><td colspan="2">Aucune donnée disponible</td></tr> }
@@ -131,7 +119,6 @@
         </table>
       </div>
 
-      <!-- Top Emprunteurs -->
       <div class="data-card">
         <h2>Top Emprunteurs</h2>
         <div class="chart-container">
@@ -149,17 +136,16 @@
           <tbody>
             @for (emp of topEmprunteurs(); track emp.matPers) {
               <tr>
-                <td>{{ emp.prenPers }} {{ emp.nomPers }}</td>
-                <td>{{ emp.nbPrets }}</td>
-                <td>{{ formatMontant(emp.totalEmprunte) }}</td>
-                <td>{{ emp.tauxMoyen }}%</td>
+                <td>{{ emp?.prenPers }} {{ emp?.nomPers }}</td>
+                <td>{{ emp?.nbPrets }}</td>
+                <td>{{ formatMontant(emp?.totalEmprunte || 0) }}</td>
+                <td>{{ emp?.tauxMoyen }}%</td>
               </tr>
             }
             @empty { <tr><td colspan="4">Aucune donnée disponible</td></tr> }
           </tbody>
         </table>
       </div>
-
     }
   </div>
 </div>

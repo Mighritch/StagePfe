@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VwEncoursParTypePretDTO {
+    private String idVue;
     private String libPret;
     private String typPret;
     private String codGrpPret;
