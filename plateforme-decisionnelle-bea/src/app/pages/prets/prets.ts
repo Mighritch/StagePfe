@@ -89,9 +89,10 @@ export class Prets implements OnInit, OnDestroy {
         annee
       ),
 
+      // Intégration de la correction demandée ici
       parObjet: this.creditService.getPretsParObjet(
-        service,
-        annee
+        service, // Service filter
+        annee    // Year filter
       ),
 
       emprunteurs: this.creditService.getTopEmprunteurs(

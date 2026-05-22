@@ -84,12 +84,20 @@ public class CreditAnalyticsService {
         }
     }
 
+    /**
+     * Version mise à jour avec logs de debug
+     */
     public List<VwPretsParObjet> getPretsParObjet(String service, Integer annee, String objet) {
         try {
+            log.info("Récupération prêts par objet - service: {}, année: {}, objet: {}", service, annee, objet);
+            List<VwPretsParObjet> result;
             if (service != null || annee != null || objet != null) {
-                return pretsParObjetRepo.findByFiltres(service, annee, objet);
+                result = pretsParObjetRepo.findByFiltres(service, annee, objet);
+            } else {
+                result = pretsParObjetRepo.findAll();
             }
-            return pretsParObjetRepo.findAll();
+            log.info("Nombre de résultats: {}", result != null ? result.size() : 0);
+            return result;
         } catch (Exception e) {
             log.error("Erreur récupération prêts par objet", e);
             throw new RuntimeException("Impossible de récupérer les prêts par objet", e);
