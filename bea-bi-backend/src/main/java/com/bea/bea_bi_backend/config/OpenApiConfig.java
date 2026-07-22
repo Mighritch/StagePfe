@@ -15,15 +15,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private String issuerUri;
+    // URL publique de Keycloak (accessible depuis le NAVIGATEUR) - utilisee pour Swagger UI
+    // En local sans Docker, pointe vers la meme instance que issuer-uri
+    // En Docker, surcharge via KEYCLOAK_PUBLIC_URL pour eviter d'exposer le hostname interne "keycloak"
+    @Value("${app.keycloak.public-url}")
+    private String keycloakPublicUrl;
 
     private static final String SECURITY_SCHEME_NAME = "keycloak_oauth2";
 
     @Bean
     public OpenAPI openAPI() {
 
-        String tokenUrl = issuerUri + "/protocol/openid-connect/token";
+        // IMPORTANT : on construit le tokenUrl a partir de l'URL PUBLIQUE,
+        // pas a partir de issuer-uri (qui reste reserve a la validation JWT interne au backend).
+        String tokenUrl = keycloakPublicUrl + "/protocol/openid-connect/token";
 
         return new OpenAPI()
                 .info(new Info()

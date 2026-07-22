@@ -23,7 +23,31 @@ $card-colors: (
   // ── Header toolbar ───────────────────────────────────────
   .export-buttons {
     @include export-buttons;
-    justify-content: flex-end;
+    justify-content: space-between; // ← Modifié pour laisser de la place au user-info
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: $text-secondary;
+
+      .user-name {
+        font-weight: 600;
+        color: $text-primary;
+      }
+
+      .user-role {
+        font-size: 0.8rem;
+        background: rgba($primary, 0.1);
+        color: $primary;
+        padding: 2px 8px;
+        border-radius: 12px;
+      }
+    }
   }
 
   // ── KPI Cards grid ───────────────────────────────────────

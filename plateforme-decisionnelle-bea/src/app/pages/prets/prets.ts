@@ -31,9 +31,9 @@ export class Prets implements OnInit, OnDestroy {
   topEmprunteurs = signal<VwTopEmprunteurs[]>([]);
   pretsParObjet = signal<VwPretsParObjet[]>([]);
 
-  selectedAnnee = signal<number>(new Date().getFullYear());
-  selectedService = signal<string>('');
-  selectedTypePret = signal<string>('');
+   selectedAnnee = signal<number>(2025);
+   selectedService = signal<string>('');
+   selectedTypePret = signal<string>('');
 
   loading = signal<boolean>(false);
   error = signal<string | null>(null);

@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -32,30 +35,30 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/api-docs/**",
             "/actuator/health",
-            "/swagger-ui/oauth2-redirect.html",  // ← AJOUTÉ
-            "/webjars/**"                          // ← AJOUTÉ
+            "/swagger-ui/oauth2-redirect.html",
+            "/webjars/**"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-
-                // ← AJOUTÉ : activation CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/api/rh/**", "/api/absences/**")
-                        .hasAnyRole("RH", "DIRECTION")
-                        .requestMatchers("/api/credit/**", "/api/salaire/**")
-                        .hasAnyRole("FINANCE", "DIRECTION")
+                        .requestMatchers("/api/analytics/absences/**", "/api/rh/**", "/api/absences/**")
+                            .hasAnyRole("RH", "DIRECTION")
+                        .requestMatchers("/api/analytics/credit/**", "/api/credit/**", "/api/salaire/**")
+                            .hasAnyRole("FINANCE", "DIRECTION")
+                        .requestMatchers("/api/analytics/**")
+                            .authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())                    // ← Correction ici
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 );
@@ -63,17 +66,38 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ← AJOUTÉ : configuration CORS pour Angular (localhost:4200)
+    /**
+     * JwtDecoder personnalisé qui résout le mismatch d'issuer :
+     * - Récupère les clés JWK via l'URL interne Docker (keycloak:8080)
+     * - Valide l'issuer comme l'URL publique (localhost:8180)
+     */
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        // URL interne Docker pour récupérer les clés publiques JWK
+        String jwkSetUri = "http://keycloak:8080/realms/bea-realm/protocol/openid-connect/certs";
+        
+        // Issuer attendu dans les tokens = URL publique annoncée par Keycloak
+        String expectedIssuer = "http://localhost:8180/realms/bea-realm";
+
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        
+        // Valide l'issuer publique, pas l'URL interne
+        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(expectedIssuer));
+        
+        return decoder;
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:4200",   // Angular dev
-                "http://localhost:8080"    // Swagger UI
+                "http://localhost:4200",
+                "http://localhost:8081",
+                "http://localhost:8180"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -88,21 +112,15 @@ public class SecurityConfig {
         return converter;
     }
 
-    /**
-     * Extrait les rôles depuis le token JWT Keycloak :
-     * - realm_access.roles            → rôles globaux du realm
-     * - resource_access.<client>.roles → rôles spécifiques au client
-     */
     static class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-        private static final String CLIENT_ID = "bea-bi-client";
+        private static final String CLIENT_ID = "angular-app";
 
         @Override
         @SuppressWarnings("unchecked")
         public Collection<GrantedAuthority> convert(Jwt jwt) {
             List<GrantedAuthority> authorities = new ArrayList<>();
 
-            // 1. Rôles du realm (realm_access.roles)
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
             if (realmAccess != null && realmAccess.containsKey("roles")) {
                 List<String> realmRoles = (List<String>) realmAccess.get("roles");
@@ -113,7 +131,6 @@ public class SecurityConfig {
                 );
             }
 
-            // 2. Rôles du client (resource_access.<CLIENT_ID>.roles)
             Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
             if (resourceAccess != null && resourceAccess.containsKey(CLIENT_ID)) {
                 Map<String, Object> clientAccess =

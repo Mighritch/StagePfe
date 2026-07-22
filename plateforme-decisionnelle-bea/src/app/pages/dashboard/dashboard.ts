@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
@@ -11,6 +11,7 @@ import { EffectifAnalyticsService, VwEffectifParService } from '../../services/e
 import { CreditAnalyticsService, VwTopEmprunteurs } from '../../services/credit-analytics';
 import { ChargesAnalyticsService, VwEvolutionMasseSalariale } from '../../services/charges-analytics';
 import { ExportService } from '../../services/export.service';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +35,10 @@ export class Dashboard implements OnInit {
   topEmprunteurs      = signal<VwTopEmprunteurs[]>([]);
   evolutionMasse      = signal<VwEvolutionMasseSalariale[]>([]);
 
+  // ── Rôle utilisateur connecté ────────────────────────────────────────
+  userRoles = signal<string[]>([]);
+  userName  = signal<string>('');
+
   // ── Configuration Chart.js ───────────────────────────────────────────
   absencesChartData = signal<ChartData<'line'> | null>(null);
   evolutionMasseChartData = signal<ChartData<'line'> | null>(null);
@@ -44,7 +49,12 @@ export class Dashboard implements OnInit {
   // ── États de l'interface ──────────────────────────────────────────────
   loading     = signal<boolean>(true);
   error       = signal<string | null>(null);
-  currentYear = new Date().getFullYear();
+  readonly LAST_DATA_YEAR = 2025;
+  currentYear = new Date().getFullYear() > this.LAST_DATA_YEAR
+    ? this.LAST_DATA_YEAR
+    : new Date().getFullYear();
+
+  private keycloak = inject(KeycloakService);
 
   constructor(
     private absencesService: AbsencesAnalyticsService,
@@ -59,8 +69,23 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadUserInfo();
     this.loadDashboardData();
   }
+
+private loadUserInfo(): void {
+  this.keycloak.loadUserProfile().then(profile => {
+    this.userName.set(profile.firstName && profile.lastName 
+      ? `${profile.firstName} ${profile.lastName}` 
+      : profile.username || 'Utilisateur');
+  }).catch(() => {});
+
+  const allRoles = this.keycloak.getUserRoles();
+  const allowedRoles = ['DIRECTION', 'RH', 'FINANCE'];
+  
+  // Filtrer uniquement les rôles autorisés
+  this.userRoles.set(allRoles.filter(role => allowedRoles.includes(role)));
+}
 
   private loadDashboardData(): void {
     this.loading.set(true);

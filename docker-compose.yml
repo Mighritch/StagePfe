@@ -1,0 +1,107 @@
+services:
+  oracle:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: bea-oracle
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      ORACLE_CHARACTERSET: AL32UTF8
+    ports:
+      - "1522:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "sqlplus", "-s", "system/${ORACLE_PASSWORD}@//localhost:1521/XE", "SELECT 1 FROM DUAL"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bea-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: bea-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+
+      KC_HOSTNAME_URL: http://localhost:${KEYCLOAK_PORT}
+      KC_HOSTNAME_BACKCHANNEL_URL: http://keycloak:8080
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_PROXY: edge
+      KC_HTTP_RELATIVE_PATH: /
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      start-dev
+      --spi-content-security-policy-default-policy="frame-src 'self' http://localhost:${FRONTEND_PORT} http://localhost:${KEYCLOAK_PORT}; frame-ancestors 'self' http://localhost:${FRONTEND_PORT};"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /realms/master HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && timeout 2 cat <&3 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    container_name: bea-bi-backend
+    ports:
+      - "${BACKEND_PORT}:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle:1521/XE
+      SPRING_DATASOURCE_USERNAME: grh_dw
+      SPRING_DATASOURCE_PASSWORD: ${ORACLE_PASSWORD}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      SPRING_JPA_OPEN_IN_VIEW: "false"
+      # URL interne (reseau Docker) - utilisee par le backend pour valider les tokens JWT
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/bea-realm
+      # URL publique (accessible depuis le navigateur) - utilisee par Swagger UI pour le flow OAuth
+      KEYCLOAK_PUBLIC_URL: http://localhost:${KEYCLOAK_PORT}/realms/bea-realm
+    command: >
+      java -jar app.jar
+    depends_on:
+      oracle:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    container_name: bea-bi-frontend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - backend
+
+volumes:
+  oracle-data:
+  postgres-data:

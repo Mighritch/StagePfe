@@ -1,7 +1,11 @@
 <div class="dashboard">
 
-  <!-- ── Toolbar export ──────────────────────────────────────── -->
   <div class="export-buttons">
+    <div class="user-info">
+      <span class="user-name">{{ userName() }}</span>
+      <span class="user-role">• {{ userRoles().join(', ') || 'Aucun rôle' }}</span>
+    </div>
+
     <button (click)="exportDashboardPDF()" class="btn-export pdf" [disabled]="loading()">
       <span class="material-icons">picture_as_pdf</span> PDF
     </button>
@@ -10,9 +14,6 @@
     </button>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!--  SKELETON                                                   -->
-  <!-- ══════════════════════════════════════════════════════════ -->
   @if (loading()) {
     <div class="skeleton-container">
 
@@ -45,13 +46,9 @@
 
     </div>
 
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!--  CONTENU RÉEL                                              -->
-  <!-- ══════════════════════════════════════════════════════════ -->
   } @else {
     <div id="dashboard-content">
 
-      <!-- ── KPI Cards ──────────────────────────────────────── -->
       <div class="stats-grid">
 
         <div class="stat-card">
@@ -104,10 +101,8 @@
 
       </div>
 
-      <!-- ── Row: graphiques ────────────────────────────────── -->
       <div class="charts-row">
 
-        <!-- Absences par année -->
         <div class="chart-card">
           <h3>Absences par année</h3>
           <div class="chart-container" style="height: 280px; margin-bottom: 20px;">
@@ -145,7 +140,6 @@
           </div>
         </div>
 
-        <!-- Top emprunteurs -->
         <div class="chart-card">
           <h3>Top Emprunteurs {{ currentYear }}</h3>
           <div class="table-container">
@@ -176,7 +170,6 @@
 
       </div>
 
-      <!-- ── Évolution masse salariale ──────────────────────── -->
       <div class="chart-card full-width">
         <h3>Évolution de la Masse Salariale</h3>
         <div class="chart-container" style="height: 320px; margin-bottom: 20px;">

@@ -16,29 +16,27 @@ export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) =>
       return false;
     }
 
-    // ✅ Récupérer les rôles via Keycloak
     const userRoles = keycloak.getUserRoles();
-    console.log('🎭 Rôles utilisateur:', userRoles); // Devrait afficher ['RH', 'default-roles-bea-realm']
+    console.log('🎭 Rôles utilisateur:', userRoles);
 
-    const requiredRoles = route.data['roles'] as string[];
-    
-    if (!requiredRoles || requiredRoles.length === 0) {
-      return true;
-    }
+    // Rôles autorisés pour le dashboard
+    const allowedRoles = ['DIRECTION', 'RH', 'FINANCE'];
 
-    // ✅ Vérifier si l'utilisateur a au moins un des rôles requis
-    const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+    // Vérifier si l'utilisateur a au moins un des rôles autorisés
+    const hasAllowedRole = allowedRoles.some(role => userRoles.includes(role));
 
-    if (!hasRequiredRole) {
-      console.warn(`⛔ Accès refusé à ${route.url} - Rôles requis:`, requiredRoles);
+    if (!hasAllowedRole) {
+      console.warn(`⛔ Accès refusé - Rôles requis: ${allowedRoles}`);
       router.navigate(['/unauthorized']);
       return false;
     }
 
-    console.log(`✅ Accès autorisé à ${route.url}`);
+    console.log(`✅ Accès autorisé pour rôle(s): ${userRoles.filter(r => allowedRoles.includes(r))}`);
     return true;
+
   } catch (error) {
     console.error('Erreur auth guard :', error);
+    router.navigate(['/login']);
     return false;
   }
 };

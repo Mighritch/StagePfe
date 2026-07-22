@@ -1,17 +1,22 @@
 import { KeycloakService } from 'keycloak-angular';
+import { environment } from '../../environments/Environment'; 
 
 export function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
     keycloak.init({
       config: {
-        url: 'http://localhost:8180', // L'URL de ton serveur Keycloak
-        realm: 'bea-realm',           // Le nom de ton Realm
-        clientId: 'angular-app'       // L'ID que tu as créé sur l'image
+        url: environment.keycloak.url,
+        realm: environment.keycloak.realm,
+        clientId: environment.keycloak.clientId
       },
       initOptions: {
-        onLoad: 'check-sso', // Vérifie la session sans forcer le login immédiatement
+        onLoad: 'check-sso',
         silentCheckSsoRedirectUri:
-          window.location.origin + '/assets/silent-check-sso.html'
-      }
+          window.location.origin + '/assets/silent-check-sso.html',
+        checkLoginIframe: false,
+        pkceMethod: 'S256'
+      },
+      enableBearerInterceptor: true,
+      bearerExcludedUrls: ['/assets']
     });
 }
