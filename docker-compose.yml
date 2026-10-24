@@ -1,6 +1,7 @@
 services:
   oracle:
     image: gvenzl/oracle-xe:21-slim
+    platform: linux/amd64
     container_name: bea-oracle
     environment:
       ORACLE_PASSWORD: ${ORACLE_PASSWORD}
@@ -9,12 +10,13 @@ services:
       - "1522:1521"
     volumes:
       - oracle-data:/opt/oracle/oradata
+      - ./init-scripts:/container-entrypoint-initdb.d   # ← AJOUTÉ ICI
     healthcheck:
       test: ["CMD", "sqlplus", "-s", "system/${ORACLE_PASSWORD}@//localhost:1521/XE", "SELECT 1 FROM DUAL"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 120s   # ← Augmenté pour laisser le temps d'exécuter les scripts
 
   postgres:
     image: postgres:16-alpine
@@ -39,7 +41,6 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
-
       KC_HOSTNAME_URL: http://localhost:${KEYCLOAK_PORT}
       KC_HOSTNAME_BACKCHANNEL_URL: http://keycloak:8080
       KC_HTTP_ENABLED: "true"
@@ -47,7 +48,6 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_PROXY: edge
       KC_HTTP_RELATIVE_PATH: /
-
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
@@ -69,22 +69,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-backend
+    platform: linux/amd64
     container_name: bea-bi-backend
     ports:
       - "${BACKEND_PORT}:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle:1521/XE
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle:1521/XEPDB1
       SPRING_DATASOURCE_USERNAME: grh_dw
-      SPRING_DATASOURCE_PASSWORD: ${ORACLE_PASSWORD}
-      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      SPRING_DATASOURCE_PASSWORD: grh_dw   
       SPRING_JPA_OPEN_IN_VIEW: "false"
-      # URL interne (reseau Docker) - utilisee par le backend pour valider les tokens JWT
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/bea-realm
-      # URL publique (accessible depuis le navigateur) - utilisee par Swagger UI pour le flow OAuth
       KEYCLOAK_PUBLIC_URL: http://localhost:${KEYCLOAK_PORT}/realms/bea-realm
-    command: >
-      java -jar app.jar
     depends_on:
       oracle:
         condition: service_healthy
@@ -96,6 +92,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-frontend
+    platform: linux/amd64
     container_name: bea-bi-frontend
     ports:
       - "${FRONTEND_PORT}:80"
